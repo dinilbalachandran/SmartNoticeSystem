@@ -1,0 +1,41 @@
+Development Plan
+
+We'll build it module by module, testing each one before moving on.
+
+Phase 1 – Flask Website
+Home page
+Admin login (or simple admin access)
+Dashboard
+
+Phase 2 – Database
+Create tables:
+	Faculty
+	Monitor URLs
+	Notices
+	Email Logs
+
+Phase 3 – Admin Module
+Upload faculty CSV
+Add/remove monitoring URLs
+Configure sender email
+
+Phase 4 – Website Monitoring
+Read KTU announcement page
+Detect newly added notices
+
+Phase 5 – PDF Processing
+Download PDFs
+Extract text
+Store in database
+
+Phase 6 – ML Classification ⭐
+Department classifier (primary feature)
+Notice category classifier (secondary feature)
+
+Phase 7 – Email Routing
+Find matching faculty
+Attach PDF
+Send email
+
+Phase 8 – Scheduler
+Run continuously every 5 minutes.
