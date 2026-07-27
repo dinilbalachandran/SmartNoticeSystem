@@ -6,72 +6,84 @@ Dashboard
 
 {% block content %}
 
-<h2 class="mb-4">
-    Dashboard
-</h2>
+<div class="container-fluid">
 
-<div class="row">
+    <div class="row g-4">
 
-    <div class="col-md-3">
+        <!-- Total Notices -->
+        <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card">
 
-        <div class="card shadow-sm">
-
-            <div class="card-body">
-
-                <h5>Total Notices</h5>
+                <div class="card-icon blue">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
 
                 <h2>125</h2>
 
-            </div>
+                <p>Total Notices</p>
 
+                <small class="text-primary">
+                    ↑ 12 Today
+                </small>
+
+            </div>
         </div>
 
-    </div>
+        <!-- Faculty -->
+        <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card">
 
-    <div class="col-md-3">
-
-        <div class="card shadow-sm">
-
-            <div class="card-body">
-
-                <h5>Faculty</h5>
+                <div class="card-icon green">
+                    <i class="bi bi-people-fill"></i>
+                </div>
 
                 <h2>84</h2>
 
-            </div>
+                <p>Faculty Members</p>
 
-        </div>
-
-    </div>
-
-    <div class="col-md-3">
-
-        <div class="card shadow-sm">
-
-            <div class="card-body">
-
-                <h5>Email Sent</h5>
-
-                <h2>520</h2>
+                <small class="text-success">
+                    ↑ 3 New
+                </small>
 
             </div>
-
         </div>
 
-    </div>
+        <!-- Emails -->
+        <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card">
 
-    <div class="col-md-3">
+                <div class="card-icon red">
+                    <i class="bi bi-envelope-fill"></i>
+                </div>
 
-        <div class="card shadow-sm">
+                <h2>521</h2>
 
-            <div class="card-body">
+                <p>Emails Sent</p>
 
-                <h5>Sources</h5>
+                <small class="text-danger">
+                    ↑ 25 Today
+                </small>
+
+            </div>
+        </div>
+
+        <!-- Sources -->
+        <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card">
+
+                <div class="card-icon yellow">
+                    <i class="bi bi-globe2"></i>
+                </div>
 
                 <h2>1</h2>
 
-            </div>
+                <p>Notice Sources</p>
 
+                <small class="text-warning">
+                    Active
+                </small>
+
+            </div>
         </div>
 
     </div>

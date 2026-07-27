@@ -1,0 +1,397 @@
+/* ==========================
+   GOOGLE FONT
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:#0B1220;
+
+    color:#fff;
+
+    overflow-x:hidden;
+
+}
+
+/* ==========================
+   Layout
+========================== */
+
+.wrapper{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+/* ==========================
+   Sidebar
+========================== */
+
+.sidebar{
+
+    width:270px;
+
+    background:#111827;
+
+    border-right:1px solid rgba(255,255,255,.08);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+}
+
+.logo{
+
+    text-align:center;
+
+    padding:35px 20px;
+
+}
+
+.logo-icon{
+
+    font-size:55px;
+
+    color:#3B82F6;
+
+}
+
+.logo h3{
+
+    margin-top:18px;
+
+    font-weight:700;
+
+}
+
+.logo p{
+
+    color:#94A3B8;
+
+    margin-top:8px;
+
+}
+
+.sidebar hr{
+
+    border-color:rgba(255,255,255,.08);
+
+    margin:0 18px;
+
+}
+
+/* ==========================
+   Navigation
+========================== */
+
+.sidebar .nav{
+
+    padding:20px;
+
+}
+
+.sidebar .nav-link{
+
+    color:#CBD5E1;
+
+    padding:14px 18px;
+
+    border-radius:14px;
+
+    margin-bottom:12px;
+
+    transition:.3s;
+
+    font-size:17px;
+
+}
+
+.sidebar .nav-link i{
+
+    margin-right:12px;
+
+}
+
+.sidebar .nav-link:hover{
+
+    background:#1E3A8A;
+
+    color:white;
+
+}
+
+.sidebar .nav-link.active{
+
+    background:#2563EB;
+
+    color:white;
+
+    box-shadow:0 0 25px rgba(37,99,235,.45);
+
+}
+
+/* ==========================
+   Sidebar Footer
+========================== */
+
+.sidebar-footer{
+
+    padding:25px;
+
+    color:#94A3B8;
+
+    font-size:14px;
+
+}
+
+.version{
+
+    color:#3B82F6;
+
+    font-weight:600;
+
+}
+
+/* ==========================
+   Main Area
+========================== */
+
+.main-content{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ==========================
+   Navbar
+========================== */
+
+.topbar{
+
+    height:72px;
+
+    background:#0F172A;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 35px;
+
+}
+
+.topbar .left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+.menu-btn{
+
+    font-size:28px;
+
+    cursor:pointer;
+
+}
+
+.topbar h4{
+
+    margin:0;
+
+    font-weight:600;
+
+}
+
+.right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:25px;
+
+}
+
+.notification{
+
+    font-size:22px;
+
+    position:relative;
+
+    cursor:pointer;
+
+}
+
+.avatar{
+
+    width:42px;
+
+    height:42px;
+
+    background:#4F46E5;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.profile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.page-content{
+
+    padding:40px;
+
+    background:radial-gradient(circle at top,#111827,#0B1220);
+
+    min-height:calc(100vh - 72px);
+
+}
+
+/* ==========================
+   Dashboard Cards
+========================== */
+
+.dashboard-card{
+
+    background:#111827;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:22px;
+
+    padding:30px;
+
+    transition:.35s;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.25);
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-8px);
+
+    border-color:#2563EB;
+
+    box-shadow:0 15px 45px rgba(37,99,235,.25);
+
+}
+
+.dashboard-card h1{
+
+    font-size:58px;
+
+    font-weight:700;
+
+    margin-top:20px;
+
+}
+
+.dashboard-card h5{
+
+    color:#E2E8F0;
+
+    margin-top:10px;
+
+}
+
+.dashboard-card small{
+
+    display:block;
+
+    margin-top:18px;
+
+    font-size:16px;
+
+}
+
+/* icon */
+
+.card-icon{
+
+    width:75px;
+
+    height:75px;
+
+    border-radius:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:34px;
+
+}
+
+/* colors */
+
+.blue{
+
+    background:rgba(59,130,246,.18);
+
+    color:#3B82F6;
+
+}
+
+.green{
+
+    background:rgba(16,185,129,.18);
+
+    color:#22C55E;
+
+}
+
+.red{
+
+    background:rgba(239,68,68,.18);
+
+    color:#F87171;
+
+}
+
+.yellow{
+
+    background:rgba(245,158,11,.18);
+
+    color:#FBBF24;
+
+}
