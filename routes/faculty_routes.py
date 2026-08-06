@@ -7,7 +7,8 @@ from flask import url_for
 from database.database import (
     get_all_faculty,
     add_faculty,
-    delete_faculty
+    delete_faculty,
+    update_faculty
 )
 
 faculty_bp = Blueprint("faculty", __name__)
@@ -41,5 +42,17 @@ def add_faculty_route():
 def delete_faculty_route(id):
 
     delete_faculty(id)
+
+    return redirect(url_for("faculty.faculty"))
+
+@faculty_bp.route("/faculty/update", methods=["POST"])
+def update_faculty_route():
+
+    id = request.form["id"]
+    name = request.form["name"]
+    department = request.form["department"]
+    email = request.form["email"]
+
+    update_faculty(id, name, department, email)
 
     return redirect(url_for("faculty.faculty"))

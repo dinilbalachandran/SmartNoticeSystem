@@ -77,3 +77,20 @@ def delete_faculty(faculty_id):
     conn.commit()
 
     conn.close()
+
+def update_faculty(id, name, department, email):
+
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE faculty
+        SET
+            name = ?,
+            department = ?,
+            email = ?
+        WHERE id = ?
+    """, (name, department, email, id))
+
+    conn.commit()
+
+    conn.close()

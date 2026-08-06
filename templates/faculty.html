@@ -102,7 +102,8 @@ Faculty Management
 
                     <td>
 
-                        <button class="btn btn-warning btn-sm">
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editFaculty{{ faculty.id }}">
 
                             <i class="bi bi-pencil"></i>
 
@@ -118,6 +119,68 @@ Faculty Management
                     </td>
 
                 </tr>
+
+                <div class="modal fade" id="editFaculty{{ faculty.id }}">
+
+                    <div class="modal-dialog">
+
+                        <div class="modal-content bg-dark text-white">
+
+                            <form action="/faculty/update" method="POST">
+
+                                <input type="hidden" name="id" value="{{ faculty.id }}">
+
+                                <div class="modal-header">
+
+                                    <h5>Edit Faculty</h5>
+
+                                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <input class="form-control mb-3" name="name" value="{{ faculty.name }}" required>
+
+                                    <select class="form-select mb-3" name="department" required>
+
+                                        <option {% if faculty.department=="MCA" %}selected{% endif %}>MCA</option>
+                                        <option {% if faculty.department=="CSE" %}selected{% endif %}>CSE</option>
+                                        <option {% if faculty.department=="ECE" %}selected{% endif %}>ECE</option>
+                                        <option {% if faculty.department=="EEE" %}selected{% endif %}>EEE</option>
+                                        <option {% if faculty.department=="ME" %}selected{% endif %}>ME</option>
+                                        <option {% if faculty.department=="CE" %}selected{% endif %}>CE</option>
+                                        <option {% if faculty.department=="AEI" %}selected{% endif %}>AEI</option>
+
+                                    </select>
+
+                                    <input class="form-control" name="email" value="{{ faculty.email }}" required>
+
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                        Cancel
+
+                                    </button>
+
+                                    <button class="btn btn-primary">
+
+                                        Update
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
                 {% endfor %}
 
