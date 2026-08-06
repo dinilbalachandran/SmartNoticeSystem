@@ -31,3 +31,37 @@ def initialize_database():
 
     conn.commit()
     conn.close()
+
+# -----------------------------
+# Faculty CRUD
+# -----------------------------
+
+def get_all_faculty():
+
+    conn = get_connection()
+
+    faculty = conn.execute("""
+        SELECT *
+        FROM faculty
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    return faculty
+
+
+def add_faculty(name, department, email):
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO faculty
+        (name, department, email)
+        VALUES (?, ?, ?)
+    """, (name, department, email))
+
+    conn.commit()
+
+    conn.close()
+

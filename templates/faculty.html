@@ -24,7 +24,7 @@ Faculty Management
 
         </div>
 
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#facultyModal">
 
             <i class="bi bi-plus-circle"></i>
 
@@ -42,11 +42,7 @@ Faculty Management
 
             <div class="col-md-8">
 
-                <input
-                    type="text"
-                    class="form-control search-box"
-                    placeholder="Search faculty..."
-                >
+                <input type="text" class="form-control search-box" placeholder="Search faculty...">
 
             </div>
 
@@ -94,23 +90,25 @@ Faculty Management
 
             <tbody>
 
+                {% for faculty in faculty_list %}
+
                 <tr>
 
-                    <td>Dr. Vineetha S</td>
+                    <td>{{ faculty.name }}</td>
 
-                    <td>MCA</td>
+                    <td>{{ faculty.department }}</td>
 
-                    <td>vineetha@rit.ac.in</td>
+                    <td>{{ faculty.email }}</td>
 
                     <td>
 
-                        <button class="btn btn-sm btn-warning">
+                        <button class="btn btn-warning btn-sm">
 
                             <i class="bi bi-pencil"></i>
 
                         </button>
 
-                        <button class="btn btn-sm btn-danger">
+                        <button class="btn btn-danger btn-sm">
 
                             <i class="bi bi-trash"></i>
 
@@ -120,35 +118,78 @@ Faculty Management
 
                 </tr>
 
-                <tr>
-
-                    <td>Dr. Reena Murali</td>
-
-                    <td>MCA</td>
-
-                    <td>reena@rit.ac.in</td>
-
-                    <td>
-
-                        <button class="btn btn-sm btn-warning">
-
-                            <i class="bi bi-pencil"></i>
-
-                        </button>
-
-                        <button class="btn btn-sm btn-danger">
-
-                            <i class="bi bi-trash"></i>
-
-                        </button>
-
-                    </td>
-
-                </tr>
+                {% endfor %}
 
             </tbody>
 
         </table>
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="facultyModal">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content bg-dark text-white">
+
+            <form action="/faculty/add" method="POST">
+
+                <div class="modal-header">
+
+                    <h5>Add Faculty</h5>
+
+                    <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                    class="form-control mb-3"
+                    name="name"
+                    placeholder="Faculty Name"
+                    required>
+
+                    <input
+                    class="form-control mb-3"
+                    name="department"
+                    placeholder="Department"
+                    required>
+
+                    <input
+                    class="form-control"
+                    name="email"
+                    placeholder="Email"
+                    required>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancel
+
+                    </button>
+
+                    <button class="btn btn-primary">
+
+                    Save
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 
