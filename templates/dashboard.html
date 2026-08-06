@@ -4,14 +4,22 @@
 Dashboard
 {% endblock %}
 
+{% block page_title %}
+Dashboard
+{% endblock %}
+
 {% block content %}
 
 <div class="container-fluid">
 
+    <!-- Statistics Cards -->
+
     <div class="row g-4">
 
-        <!-- Total Notices -->
+        <!-- Card 1 -->
+
         <div class="col-lg-3 col-md-6">
+
             <div class="dashboard-card">
 
                 <div class="card-icon blue">
@@ -22,15 +30,16 @@ Dashboard
 
                 <p>Total Notices</p>
 
-                <small class="text-primary">
-                    ↑ 12 Today
-                </small>
+                <small class="text-primary">↑ 12 Today</small>
 
             </div>
+
         </div>
 
-        <!-- Faculty -->
+        <!-- Card 2 -->
+
         <div class="col-lg-3 col-md-6">
+
             <div class="dashboard-card">
 
                 <div class="card-icon green">
@@ -41,15 +50,16 @@ Dashboard
 
                 <p>Faculty Members</p>
 
-                <small class="text-success">
-                    ↑ 3 New
-                </small>
+                <small class="text-success">↑ 3 New</small>
 
             </div>
+
         </div>
 
-        <!-- Emails -->
+        <!-- Card 3 -->
+
         <div class="col-lg-3 col-md-6">
+
             <div class="dashboard-card">
 
                 <div class="card-icon red">
@@ -60,15 +70,16 @@ Dashboard
 
                 <p>Emails Sent</p>
 
-                <small class="text-danger">
-                    ↑ 25 Today
-                </small>
+                <small class="text-danger">↑ 25 Today</small>
 
             </div>
+
         </div>
 
-        <!-- Sources -->
+        <!-- Card 4 -->
+
         <div class="col-lg-3 col-md-6">
+
             <div class="dashboard-card">
 
                 <div class="card-icon yellow">
@@ -79,11 +90,154 @@ Dashboard
 
                 <p>Notice Sources</p>
 
-                <small class="text-warning">
-                    Active
+                <small class="text-warning">Running</small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom Section -->
+
+    <div class="row mt-4">
+
+        <!-- Recent Notices -->
+
+        <div class="col-lg-8">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h5>Recent Notices</h5>
+
+                    <button class="btn btn-primary btn-sm">
+
+                        View All
+
+                    </button>
+
+                </div>
+
+                <table class="table table-dark align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Title</th>
+
+                            <th>Department</th>
+
+                            <th>Category</th>
+
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>Semester Examination Notification</td>
+
+                            <td>MCA</td>
+
+                            <td><span class="badge bg-primary">Exam</span></td>
+
+                            <td><span class="badge bg-success">Routed</span></td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Placement Drive</td>
+
+                            <td>CSE</td>
+
+                            <td><span class="badge bg-warning text-dark">Placement</span></td>
+
+                            <td><span class="badge bg-success">Routed</span></td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Fee Payment Notice</td>
+
+                            <td>All</td>
+
+                            <td><span class="badge bg-danger">Fee</span></td>
+
+                            <td><span class="badge bg-success">Routed</span></td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- System Status -->
+
+        <div class="col-lg-4">
+
+            <div class="panel">
+
+                <h5 class="mb-4">
+
+                    System Status
+
+                </h5>
+
+                <div class="status-item">
+
+                    <span class="status-dot"></span>
+
+                    Website Monitoring
+
+                </div>
+
+                <div class="status-item">
+
+                    <span class="status-dot"></span>
+
+                    Database Connected
+
+                </div>
+
+                <div class="status-item">
+
+                    <span class="status-dot"></span>
+
+                    Email Service Ready
+
+                </div>
+
+                <div class="status-item">
+
+                    <span class="status-dot"></span>
+
+                    Scheduler Running
+
+                </div>
+
+                <hr>
+
+                <small class="text-secondary">
+
+                    Last Scan : 2 minutes ago
+
                 </small>
 
             </div>
+
         </div>
 
     </div>

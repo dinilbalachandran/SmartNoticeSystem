@@ -46,21 +46,24 @@
         <ul class="nav flex-column mt-3">
 
             <li class="nav-item">
-                <a href="#" class="nav-link active">
+                <a href="/"
+class="nav-link {% if request.path == '/' %}active{% endif %}">
                     <i class="bi bi-speedometer2"></i>
                     Dashboard
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="/faculty"
+class="nav-link {% if request.path == '/faculty' %}active{% endif %}">
                     <i class="bi bi-people"></i>
                     Faculty
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="/notice-sources"
+class="nav-link {% if request.path == '/notice-sources' %}active{% endif %}">
                     <i class="bi bi-globe2"></i>
                     Notice Sources
                 </a>
@@ -109,31 +112,55 @@
 
         <nav class="topbar">
 
-            <div class="left">
+    <div class="left">
 
-                <i class="bi bi-list menu-btn"></i>
+        <button class="menu-toggle">
 
-                <h4>Dashboard</h4>
+            <i class="bi bi-list"></i>
+
+        </button>
+
+        <div>
+
+            <h4 class="page-title">{% block page_title %}Dashboard{% endblock %}</h4>
+
+            <small>Welcome back, Administrator</small>
+
+        </div>
+
+    </div>
+
+    <div class="right">
+
+        <div class="notification-box">
+
+            <i class="bi bi-bell-fill"></i>
+
+            <span class="notification-dot"></span>
+
+        </div>
+
+        <div class="profile">
+
+            <div class="avatar">
+
+                A
 
             </div>
 
-            <div class="right">
+            <div>
 
-                <i class="bi bi-bell notification"></i>
+                <strong>Administrator</strong><br>
 
-                <div class="profile">
-
-                    <div class="avatar">
-                        <i class="bi bi-person-fill"></i>
-                    </div>
-
-                    <span>Administrator</span>
-
-                </div>
+                <small>System Admin</small>
 
             </div>
 
-        </nav>
+        </div>
+
+    </div>
+
+</nav>
 
         <!-- Page Content -->
 

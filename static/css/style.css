@@ -290,17 +290,39 @@ body{
 
 .dashboard-card{
 
-    background:#111827;
+    background:linear-gradient(145deg,#111827,#1E293B);
 
     border:1px solid rgba(255,255,255,.08);
 
     border-radius:22px;
 
-    padding:30px;
+    padding:28px;
 
     transition:.35s;
 
-    box-shadow:0 10px 35px rgba(0,0,0,.25);
+    overflow:hidden;
+
+    position:relative;
+
+}
+
+.dashboard-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+
+    height:180px;
+
+    background:rgba(59,130,246,.08);
+
+    border-radius:50%;
+
+    right:-60px;
+
+    top:-60px;
 
 }
 
@@ -308,7 +330,7 @@ body{
 
     transform:translateY(-8px);
 
-    border-color:#2563EB;
+    border-color:#3B82F6;
 
     box-shadow:0 15px 45px rgba(37,99,235,.25);
 
@@ -393,5 +415,373 @@ body{
     background:rgba(245,158,11,.18);
 
     color:#FBBF24;
+
+}
+
+/* ==========================
+   Panels
+========================== */
+
+.panel{
+
+    background:#111827;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+
+}
+
+.panel-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.panel h5{
+
+    margin:0;
+
+    font-weight:600;
+
+}
+
+/* ==========================
+   Table
+========================== */
+
+.table{
+
+    margin-bottom:0;
+
+}
+
+.table-dark{
+
+    --bs-table-bg:#111827;
+
+    --bs-table-striped-bg:#172033;
+
+    --bs-table-hover-bg:#1E293B;
+
+    border-radius:12px;
+
+}
+
+.table td,
+.table th{
+
+    border-color:rgba(255,255,255,.08);
+
+}
+
+/* ==========================
+   Status
+========================== */
+
+.status-item{
+
+    display:flex;
+
+    align-items:center;
+
+    margin-bottom:18px;
+
+    font-size:16px;
+
+}
+
+.status-dot{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    background:#22C55E;
+
+    margin-right:15px;
+
+    box-shadow:0 0 12px #22C55E;
+
+}
+
+/* ==========================
+   Premium Navbar
+========================== */
+
+.topbar{
+
+    height:82px;
+
+    background:#111827;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 35px;
+
+}
+
+.left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+}
+
+.page-title{
+
+    font-weight:700;
+
+    margin:0;
+
+}
+
+.left small{
+
+    color:#94A3B8;
+
+}
+
+.menu-toggle{
+
+    width:45px;
+
+    height:45px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1E293B;
+
+    color:white;
+
+    font-size:22px;
+
+    transition:.3s;
+
+}
+
+.menu-toggle:hover{
+
+    background:#2563EB;
+
+}
+
+.right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:25px;
+
+}
+
+.notification-box{
+
+    position:relative;
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:12px;
+
+    background:#1E293B;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.notification-box:hover{
+
+    background:#2563EB;
+
+}
+
+.notification-dot{
+
+    position:absolute;
+
+    top:10px;
+
+    right:10px;
+
+    width:10px;
+
+    height:10px;
+
+    border-radius:50%;
+
+    background:#EF4444;
+
+}
+
+.avatar{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#3B82F6,#2563EB);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-weight:700;
+
+}
+
+.profile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.profile small{
+
+    color:#94A3B8;
+
+}
+
+.btn-primary{
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#2563EB;
+
+    padding:10px 18px;
+
+}
+
+.btn-primary:hover{
+
+    background:#1D4ED8;
+
+}
+
+.badge{
+
+    padding:8px 14px;
+
+    border-radius:20px;
+
+    font-weight:500;
+
+}
+
+thead th{
+
+    color:#CBD5E1;
+
+    font-weight:600;
+
+}
+
+
+/* ==========================
+   Page Header
+========================== */
+
+.page-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+.page-header h2{
+
+    font-weight:700;
+
+}
+
+.page-header p{
+
+    color:#94A3B8;
+
+}
+
+/* ==========================
+   Search Card
+========================== */
+
+.filter-card{
+
+    background:#111827;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.search-box{
+
+    background:#1E293B !important;
+
+    color:white !important;
+
+    border:none;
+
+    height:48px;
+
+}
+
+.search-box::placeholder{
+
+    color:#94A3B8;
 
 }
