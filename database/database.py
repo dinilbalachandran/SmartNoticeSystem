@@ -1,6 +1,5 @@
 import sqlite3
-
-DATABASE = "database/notice.db"
+from config import DATABASE
 
 
 def get_connection():
