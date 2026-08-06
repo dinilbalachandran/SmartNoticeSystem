@@ -65,3 +65,15 @@ def add_faculty(name, department, email):
 
     conn.close()
 
+def delete_faculty(faculty_id):
+
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM faculty WHERE id=?",
+        (faculty_id,)
+    )
+
+    conn.commit()
+
+    conn.close()
