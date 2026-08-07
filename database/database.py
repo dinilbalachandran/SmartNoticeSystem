@@ -29,6 +29,26 @@ def initialize_database():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notice_sources (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            website_name TEXT NOT NULL,
+
+            website_url TEXT NOT NULL,
+
+            check_interval INTEGER NOT NULL,
+
+            status TEXT NOT NULL DEFAULT 'Active',
+
+            last_checked TEXT,
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -90,6 +110,75 @@ def update_faculty(id, name, department, email):
             email = ?
         WHERE id = ?
     """, (name, department, email, id))
+
+    conn.commit()
+
+    conn.close()
+
+# -------------------------------------
+# Notice Sources CRUD
+# -------------------------------------
+
+def get_all_notice_sources():
+
+    conn = get_connection()
+
+    sources = conn.execute("""
+        SELECT *
+        FROM notice_sources
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    return sources
+
+
+def add_notice_source(name, url, interval):
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO notice_sources
+        (website_name, website_url, check_interval)
+        VALUES (?, ?, ?)
+    """, (name, url, interval))
+
+    conn.commit()
+
+    conn.close()
+
+
+def update_notice_source(id, name, url, interval, status):
+
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE notice_sources
+
+        SET
+
+            website_name=?,
+            website_url=?,
+            check_interval=?,
+            status=?
+
+        WHERE id=?
+    """, (name, url, interval, status, id))
+
+    conn.commit()
+
+    conn.close()
+
+
+def delete_notice_source(id):
+
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM notice_sources WHERE id=?",
+        (id,)
+    )
 
     conn.commit()
 
