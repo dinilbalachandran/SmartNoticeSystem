@@ -42,6 +42,30 @@ def add_notice_source_route():
 
     return redirect(url_for("notice.notice_sources"))
 
+@notice_bp.route("/notice-source/update", methods=["POST"])
+def update_notice_source_route():
+
+    id = request.form["id"]
+
+    name = request.form["website_name"]
+
+    url = request.form["website_url"]
+
+    interval = request.form["check_interval"]
+
+    status = request.form["status"]
+
+    update_notice_source(
+        id,
+        name,
+        url,
+        interval,
+        status
+    )
+
+    return redirect(
+        url_for("notice.notice_sources")
+    )
 
 @notice_bp.route("/notice-source/delete/<int:id>")
 def delete_notice_source_route(id):

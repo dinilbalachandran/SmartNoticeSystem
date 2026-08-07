@@ -30,6 +30,20 @@ def initialize_database():
     """)
 
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS departments (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            department_name TEXT UNIQUE NOT NULL,
+
+            short_form TEXT UNIQUE NOT NULL,
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        )
+    """)
+
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS notice_sources (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,15 +70,55 @@ def initialize_database():
 # Faculty CRUD
 # -----------------------------
 
-def get_all_faculty():
+def get_all_faculty(search="", department=""):
 
     conn = get_connection()
 
-    faculty = conn.execute("""
+    cursor = conn.cursor()
+
+    query = """
         SELECT *
         FROM faculty
+        WHERE 1=1
+    """
+
+    parameters = []
+
+    # Search filter
+    if search:
+
+        query += """
+            AND (
+                name LIKE ?
+                OR department LIKE ?
+                OR email LIKE ?
+            )
+        """
+
+        search_value = f"%{search}%"
+
+        parameters.extend([
+            search_value,
+            search_value,
+            search_value
+        ])
+
+    # Department filter
+    if department:
+
+        query += """
+            AND department = ?
+        """
+
+        parameters.append(department)
+
+    query += """
         ORDER BY id DESC
-    """).fetchall()
+    """
+
+    cursor.execute(query, parameters)
+
+    faculty = cursor.fetchall()
 
     conn.close()
 
@@ -110,6 +164,79 @@ def update_faculty(id, name, department, email):
             email = ?
         WHERE id = ?
     """, (name, department, email, id))
+
+    conn.commit()
+
+    conn.close()
+
+# -------------------------------------
+# Department CRUD
+# -------------------------------------
+
+def get_all_departments():
+
+    conn = get_connection()
+
+    departments = conn.execute("""
+        SELECT *
+        FROM departments
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    return departments
+
+
+def add_department(department_name, short_form):
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO departments
+        (department_name, short_form)
+        VALUES (?, ?)
+    """, (
+        department_name,
+        short_form
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+
+def update_department(id, department_name, short_form):
+
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE departments
+
+        SET
+            department_name = ?,
+            short_form = ?
+
+        WHERE id = ?
+    """, (
+        department_name,
+        short_form,
+        id
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+
+def delete_department(id):
+
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM departments WHERE id=?",
+        (id,)
+    )
 
     conn.commit()
 
