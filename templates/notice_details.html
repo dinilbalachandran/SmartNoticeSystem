@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}
+Notice Details
+{% endblock %}
+
+{% block page_title %}
+Notice Details
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2>Notice Details</h2>
+
+        <p>View complete information about this notice.</p>
+
+    </div>
+
+    <a
+        href="{{ url_for('notice.notice_history') }}"
+        class="btn btn-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Back to Notices
+
+    </a>
+
+</div>
+
+
+<!-- Notice -->
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h5>
+
+            <i class="bi bi-file-earmark-text"></i>
+
+            {{ notice.title }}
+
+        </h5>
+
+    </div>
+
+
+    <!-- Information -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+
+            <small class="text-secondary">
+                Source
+            </small>
+
+            <p class="mt-1">
+                {{ notice.website_name or "Unknown" }}
+            </p>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <small class="text-secondary">
+                Published Date
+            </small>
+
+            <p class="mt-1">
+                {{ notice.published_date or "Not available" }}
+            </p>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <small class="text-secondary">
+                Category
+            </small>
+
+            <p class="mt-1">
+
+                {% if notice.category %}
+
+                <span class="badge bg-primary">
+                    {{ notice.category }}
+                </span>
+
+                {% else %}
+
+                <span class="text-secondary">
+                    Unclassified
+                </span>
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <small class="text-secondary">
+                Status
+            </small>
+
+            <p class="mt-1">
+
+                <span class="badge bg-success">
+                    {{ notice.status }}
+                </span>
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- Departments -->
+
+    <div class="mt-4">
+
+        <h5>
+
+            <i class="bi bi-people"></i>
+
+            Target Departments
+
+        </h5>
+
+
+        <div class="mt-3">
+
+            {% for department in departments %}
+
+            <span class="badge bg-primary me-2">
+
+                {{ department.department_name }}
+
+                ({{ department.short_form }})
+
+            </span>
+
+            {% else %}
+
+            <span class="text-secondary">
+
+                No departments assigned.
+
+            </span>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- Content -->
+
+    <div class="mt-4">
+
+        <h5>
+
+            <i class="bi bi-file-text"></i>
+
+            Notice Content
+
+        </h5>
+
+
+        <div class="mt-3">
+
+            {% if notice.content %}
+
+            <p style="white-space: pre-line;">
+                {{ notice.content }}
+            </p>
+
+            {% else %}
+
+            <p class="text-secondary">
+                No notice content available.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Original Notice -->
+
+    {% if notice.notice_url %}
+
+    <div class="mt-4">
+
+        <a
+            href="{{ notice.notice_url }}"
+            target="_blank"
+            class="btn btn-primary">
+
+            <i class="bi bi-box-arrow-up-right"></i>
+
+            Open Original Notice
+
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

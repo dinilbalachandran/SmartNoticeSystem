@@ -39,3 +39,54 @@ Send email
 
 Phase 8 – Scheduler
 Run continuously every 5 minutes.
+
+
+
+                    ADMIN
+                      │
+                      ▼
+              Add University URLs
+                      │
+                      ▼
+              Notice Sources DB
+                      │
+                      ▼
+              Background Scheduler
+                      │
+              ┌───────┴────────┐
+              │                │
+              ▼                ▼
+        Website 1          Website 2
+              │                │
+              └───────┬────────┘
+                      ▼
+                Web Scraper
+                      │
+                      ▼
+              Extract New Notice
+                      │
+                      ▼
+              Duplicate Check
+                      │
+                      ▼
+            Notice Classification
+                      │
+              ┌───────┴────────┐
+              ▼                ▼
+          Category        Departments
+              │                │
+              └───────┬────────┘
+                      ▼
+              Notice + Routing
+                      │
+                      ▼
+             Faculty Selection
+                      │
+                      ▼
+                Email Sender
+                      │
+                      ▼
+              Email Notifications
+                      │
+                      ▼
+                Email Logs

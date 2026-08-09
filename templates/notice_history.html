@@ -10,6 +10,483 @@ Notice History
 
 {% block content %}
 
-<h2>Notice History</h2>
+<!-- Page Header -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2>Notice History</h2>
+
+        <p>View notices collected from monitored university websites.</p>
+
+    </div>
+
+    <button
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#addNoticeModal">
+
+        <i class="bi bi-plus-circle"></i>
+
+        Add Notice
+
+    </button>
+
+</div>
+
+
+<!-- Search -->
+
+<div class="filter-card mb-4">
+
+    <form method="GET"
+          action="{{ url_for('notice.notice_history') }}">
+
+        <div class="row g-3">
+
+            <div class="col-md-10">
+
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control search-box"
+                    placeholder="Search notices..."
+                    value="{{ search }}"
+                >
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary w-100">
+
+                    <i class="bi bi-search"></i>
+
+                    Search
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- Notice Table -->
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h5>
+
+            <i class="bi bi-file-earmark-text"></i>
+
+            Collected Notices
+
+        </h5>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Title</th>
+
+                    <th>Source</th>
+
+                    <th>Category</th>
+
+                    <th>Published</th>
+
+                    <th>Status</th>
+
+                    <th width="100">Actions</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for notice in notices %}
+
+                <tr>
+
+                    <td>
+                        {{ notice.id }}
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            {{ notice.title }}
+                        </strong>
+
+                    </td>
+
+                    <td>
+
+                        {{ notice.website_name or "Unknown" }}
+
+                    </td>
+
+                    <td>
+
+                        {% if notice.category %}
+
+                        <span class="badge bg-primary">
+
+                            {{ notice.category }}
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="text-secondary">
+
+                            Unclassified
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ notice.published_date or "—" }}
+
+                    </td>
+
+                    <td>
+
+                        {% if notice.status == "New" %}
+
+                        <span class="badge bg-success">
+                            New
+                        </span>
+
+                        {% elif notice.status == "Routed" %}
+
+                        <span class="badge bg-info">
+                            Routed
+                        </span>
+
+                        {% elif notice.status == "Sent" %}
+
+                        <span class="badge bg-primary">
+                            Sent
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-secondary">
+                            {{ notice.status }}
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for('notice.notice_details', id=notice.id) }}"
+                            class="btn btn-primary btn-sm">
+
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center py-5">
+
+                        <i class="bi bi-inbox fs-1 text-secondary"></i>
+
+                        <p class="mt-3 text-secondary">
+
+                            No notices found.
+
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- Add Notice Modal -->
+<!-- ========================= -->
+
+<div
+    class="modal fade"
+    id="addNoticeModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content bg-dark text-white">
+
+            <form
+                action="{{ url_for('notice.add_notice_route') }}"
+                method="POST">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        <i class="bi bi-file-earmark-plus"></i>
+
+                        Add Notice
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <!-- Title -->
+
+                    <label class="form-label">
+                        Notice Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        class="form-control mb-3"
+                        placeholder="Enter notice title"
+                        required>
+
+
+                    <!-- Content -->
+
+                    <label class="form-label">
+                        Notice Content
+                    </label>
+
+                    <textarea
+                        name="content"
+                        class="form-control mb-3"
+                        rows="6"
+                        placeholder="Enter notice content"></textarea>
+
+
+                    <!-- Source -->
+
+                    <label class="form-label">
+                        Notice Source
+                    </label>
+
+                    <select
+                        name="source_id"
+                        class="form-select mb-3"
+                        required>
+
+                        <option value="">
+                            Select Website
+                        </option>
+
+                        {% for source in sources %}
+
+                        <option value="{{ source.id }}">
+
+                            {{ source.website_name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <!-- URL -->
+
+                    <label class="form-label">
+                        Original Notice URL
+                    </label>
+
+                    <input
+                        type="url"
+                        name="notice_url"
+                        class="form-control mb-3"
+                        placeholder="https://example.com/notice">
+
+
+                    <!-- Published Date -->
+
+                    <label class="form-label">
+                        Published Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="published_date"
+                        class="form-control mb-3">
+
+
+                    <!-- Category -->
+
+                    <label class="form-label">
+                        Category
+                    </label>
+
+                    <select
+                        name="category"
+                        class="form-select mb-3"
+                        required>
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                        <option value="Examination">
+                            Examination
+                        </option>
+
+                        <option value="Academic">
+                            Academic
+                        </option>
+
+                        <option value="Event">
+                            Event
+                        </option>
+
+                        <option value="Workshop">
+                            Workshop
+                        </option>
+
+                        <option value="Placement">
+                            Placement
+                        </option>
+
+                        <option value="Circular">
+                            Circular
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+
+                    <!-- Departments -->
+
+                    <label class="form-label">
+
+                        Target Departments
+
+                    </label>
+
+                    <div class="border rounded p-3">
+
+                        {% for department in departments %}
+
+                        <div class="form-check mb-2">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="department_ids"
+                                value="{{ department.id }}"
+                                id="department{{ department.id }}">
+
+                            <label
+                                class="form-check-label"
+                                for="department{{ department.id }}">
+
+                                {{ department.department_name }}
+
+                                ({{ department.short_form }})
+
+                            </label>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <small class="text-secondary">
+
+                        Select one or more departments.
+
+                    </small>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-save"></i>
+
+                        Save Notice
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}
