@@ -26,11 +26,11 @@ Dashboard
                     <i class="bi bi-file-earmark-text-fill"></i>
                 </div>
 
-                <h2>125</h2>
+                <h2>{{ total_notices }}</h2>
 
                 <p>Total Notices</p>
 
-                <small class="text-primary">↑ 12 Today</small>
+                <small class="text-primary">Live Database Count</small>
 
             </div>
 
@@ -46,11 +46,11 @@ Dashboard
                     <i class="bi bi-people-fill"></i>
                 </div>
 
-                <h2>84</h2>
+                <h2>{{ total_faculty }}</h2>
 
                 <p>Faculty Members</p>
 
-                <small class="text-success">↑ 3 New</small>
+                <small class="text-success">Live Database Count</small>
 
             </div>
 
@@ -66,11 +66,11 @@ Dashboard
                     <i class="bi bi-envelope-fill"></i>
                 </div>
 
-                <h2>521</h2>
+                <h2>0</h2>
 
                 <p>Emails Sent</p>
 
-                <small class="text-danger">↑ 25 Today</small>
+                <small class="text-danger">Email service pending</small>
 
             </div>
 
@@ -86,7 +86,7 @@ Dashboard
                     <i class="bi bi-globe2"></i>
                 </div>
 
-                <h2>1</h2>
+                <h2>{{ total_sources }}</h2>
 
                 <p>Notice Sources</p>
 
@@ -112,11 +112,9 @@ Dashboard
 
                     <h5>Recent Notices</h5>
 
-                    <button class="btn btn-primary btn-sm">
-
+                    <a href="/notice-history" class="btn btn-primary btn-sm">
                         View All
-
-                    </button>
+                    </a>
 
                 </div>
 
@@ -140,41 +138,42 @@ Dashboard
 
                     <tbody>
 
-                        <tr>
-
-                            <td>Semester Examination Notification</td>
-
-                            <td>MCA</td>
-
-                            <td><span class="badge bg-primary">Exam</span></td>
-
-                            <td><span class="badge bg-success">Routed</span></td>
-
-                        </tr>
+                        {% for notice in recent_notices %}
 
                         <tr>
 
-                            <td>Placement Drive</td>
+                            <td>{{ notice["title"] }}</td>
 
-                            <td>CSE</td>
+                            <td>
+                                {{ notice["programme"] }}
+                                {% if notice["branch"] != "ALL" %}
+                                    - {{ notice["branch"] }}
+                                {% endif %}
+                            </td>
 
-                            <td><span class="badge bg-warning text-dark">Placement</span></td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ notice["category"] }}
+                                </span>
+                            </td>
 
-                            <td><span class="badge bg-success">Routed</span></td>
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ notice["status"] }}
+                                </span>
+                            </td>
 
                         </tr>
+
+                        {% else %}
 
                         <tr>
-
-                            <td>Fee Payment Notice</td>
-
-                            <td>All</td>
-
-                            <td><span class="badge bg-danger">Fee</span></td>
-
-                            <td><span class="badge bg-success">Routed</span></td>
-
+                            <td colspan="4" class="text-center">
+                                No notices available
+                            </td>
                         </tr>
+
+                        {% endfor %}
 
                     </tbody>
 
@@ -213,26 +212,20 @@ Dashboard
                 </div>
 
                 <div class="status-item">
-
                     <span class="status-dot"></span>
-
-                    Email Service Ready
-
+                    Email Service Pending
                 </div>
 
                 <div class="status-item">
-
                     <span class="status-dot"></span>
-
-                    Scheduler Running
-
+                    Scheduler Pending
                 </div>
 
                 <hr>
 
                 <small class="text-secondary">
 
-                    Last Scan : 2 minutes ago
+                    Last Scan : KTU scraper run
 
                 </small>
 

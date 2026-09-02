@@ -16,6 +16,8 @@ from database.database import (
     add_notice
 )
 
+from routes.notice_router import route_notice
+
 notice_bp = Blueprint("notice", __name__)
 
 
@@ -103,7 +105,6 @@ def notice_history():
 
 @notice_bp.route("/notice/<int:id>")
 def notice_details(id):
-
     notice = get_notice_by_id(id)
 
     if notice is None:
@@ -111,10 +112,16 @@ def notice_details(id):
 
     departments = get_notice_departments(id)
 
+    routed_faculty = route_notice(
+        notice["programme"],
+        notice["branch"]
+    )
+
     return render_template(
         "notice_details.html",
         notice=notice,
-        departments=departments
+        departments=departments,
+        routed_faculty=routed_faculty
     )
 
 # =========================

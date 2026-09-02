@@ -56,8 +56,8 @@ Notice Details
 
     <div class="row g-4 mb-4">
 
-        <div class="col-md-6">
-
+        <!-- Source -->
+        <div class="col-md-4">
             <small class="text-secondary">
                 Source
             </small>
@@ -65,12 +65,11 @@ Notice Details
             <p class="mt-1">
                 {{ notice.website_name or "Unknown" }}
             </p>
-
         </div>
 
 
-        <div class="col-md-6">
-
+        <!-- Published Date -->
+        <div class="col-md-4">
             <small class="text-secondary">
                 Published Date
             </small>
@@ -78,12 +77,11 @@ Notice Details
             <p class="mt-1">
                 {{ notice.published_date or "Not available" }}
             </p>
-
         </div>
 
 
-        <div class="col-md-6">
-
+        <!-- Category -->
+        <div class="col-md-4">
             <small class="text-secondary">
                 Category
             </small>
@@ -105,63 +103,114 @@ Notice Details
                 {% endif %}
 
             </p>
-
         </div>
 
 
-        <div class="col-md-6">
-
+        <!-- Status -->
+        <div class="col-md-4">
             <small class="text-secondary">
                 Status
             </small>
 
             <p class="mt-1">
-
                 <span class="badge bg-success">
                     {{ notice.status }}
                 </span>
+            </p>
+        </div>
+
+
+        <!-- Programme -->
+        <div class="col-md-4">
+            <small class="text-secondary">
+                Programme
+            </small>
+
+            <p class="mt-1">
+                <span class="badge bg-info">
+                    {{ notice.programme or "Unknown" }}
+                </span>
+            </p>
+        </div>
+
+
+        <!-- Branch -->
+        <div class="col-md-4">
+            <small class="text-secondary">
+                Branch
+            </small>
+
+            <p class="mt-1">
+                <span class="badge bg-info">
+                    {{ notice.branch or "ALL" }}
+                </span>
+            </p>
+        </div>
+
+
+        <!-- Priority -->
+        <div class="col-md-4">
+            <small class="text-secondary">
+                Priority
+            </small>
+
+            <p class="mt-1">
+
+                {% if notice.priority == "High" %}
+
+                <span class="badge bg-danger">
+                    High
+                </span>
+
+                {% elif notice.priority == "Medium" %}
+
+                <span class="badge bg-warning text-dark">
+                    Medium
+                </span>
+
+                {% else %}
+
+                <span class="badge bg-secondary">
+                    Low
+                </span>
+
+                {% endif %}
 
             </p>
-
         </div>
 
     </div>
-
 
     <hr>
 
 
     <!-- Departments -->
 
+    <!-- Routed Faculty -->
+
     <div class="mt-4">
 
         <h5>
-
             <i class="bi bi-people"></i>
-
-            Target Departments
-
+            Routed Faculty
         </h5>
-
 
         <div class="mt-3">
 
-            {% for department in departments %}
+            {% for faculty in routed_faculty %}
 
-            <span class="badge bg-primary me-2">
-
-                {{ department.department_name }}
-
-                ({{ department.short_form }})
-
+            <span class="badge bg-success me-2 mb-2">
+                {{ faculty["name"] }}
+                -
+                {{ faculty["programme"] }}
+                -
+                {{ faculty["department"] }}
             </span>
 
             {% else %}
 
             <span class="text-secondary">
-
-                No departments assigned.
-
+                No faculty members matched this notice.
             </span>
 
             {% endfor %}

@@ -951,3 +951,71 @@ thead th{
     margin-right:5px;
 
 }
+
+.notice-history-table {
+    width: 100%;
+    min-width: 1100px;
+    table-layout: fixed;
+}
+
+.notice-history-table th,
+.notice-history-table td {
+    vertical-align: middle;
+    padding: 14px 10px;
+}
+
+.notice-history-table th {
+    white-space: nowrap;
+}
+
+.notice-history-table th:nth-child(1) {
+    width: 5%;
+}
+
+.notice-history-table th:nth-child(2) {
+    width: 28%;
+}
+
+.notice-history-table th:nth-child(3) {
+    width: 8%;
+}
+
+.notice-history-table th:nth-child(4) {
+    width: 10%;
+}
+
+.notice-history-table th:nth-child(5) {
+    width: 9%;
+}
+
+.notice-history-table th:nth-child(6) {
+    width: 7%;
+}
+
+.notice-history-table th:nth-child(7) {
+    width: 8%;
+}
+
+.notice-history-table th:nth-child(8) {
+    width: 11%;
+}
+
+.notice-history-table th:nth-child(9) {
+    width: 7%;
+}
+
+.notice-history-table th:nth-child(10) {
+    width: 7%;
+}
+
+.notice-history-table td:nth-child(2) {
+    overflow-wrap: anywhere;
+}
+
+.notice-history-table td:nth-child(5),
+.notice-history-table td:nth-child(6),
+.notice-history-table td:nth-child(7),
+.notice-history-table td:nth-child(9),
+.notice-history-table td:nth-child(10) {
+    white-space: nowrap;
+}
