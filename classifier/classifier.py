@@ -71,6 +71,14 @@ def classify_notice_type(subject="", text=""):
         "examination registration"
     ]
 
+    # Avoid false classification when "examinations"
+    # appears only as part of a job/designation title.
+    if "controller of examinations" in content:
+        content = content.replace(
+            "controller of examinations",
+            ""
+        )
+
     for keyword in examination_keywords:
         if keyword in content:
             return "Examination"
@@ -96,9 +104,10 @@ def classify_notice_type(subject="", text=""):
 
     academic_keywords = [
         "academic calendar",
-        "academic",
+        "academic year",
         "semester",
-        "course duration"
+        "course duration",
+        "academic schedule"
     ]
 
     for keyword in academic_keywords:
@@ -336,7 +345,8 @@ def classify_branch(
 
     if (
         "information technology" in content
-        or re.search(r"\bit\b", content)
+        or "information technology and engineering" in content
+        or re.search(r"\b(i\.?t\.?)\s+engineering\b", content)
     ):
         return "IT"
 

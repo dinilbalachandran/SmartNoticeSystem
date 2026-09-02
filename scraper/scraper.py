@@ -1,117 +1,72 @@
 from scraper.ktu_browser import scrape_ktu
 from scraper.notice_parser import extract_text_from_pdf
+from classifier.classifier import classify_notice
 
 
 def process_notices():
 
-    print("Getting notices through KTU browser...")
-
     data = scrape_ktu()
 
     if not data:
-        print("Could not retrieve notices from KTU.")
+        print("No scraper data received.")
         return
 
     notices = data.get("notices", [])
 
     print()
-    print("========== SCRAPER RESULT ==========")
+    print("========== SCRAPER → CLASSIFIER ==========")
+    print(f"Notices received: {len(notices)}")
 
-    print(
-        "Total notices:",
-        data.get("totalElements", "Unknown")
-    )
-
-    print(
-        "Notices received:",
-        len(notices)
-    )
-
-    # --------------------------------------------------
-    # Process notices
-    # --------------------------------------------------
+    classified_count = 0
 
     for notice in notices:
 
         notice_id = notice.get("id")
-        subject = notice.get("subject")
-        announcement_date = notice.get("date")
+        subject = notice.get("subject", "")
+        attachments = notice.get("attachments", [])
 
         print()
-        print("========================================")
-
-        print("ID:", notice_id)
-        print("Date:", announcement_date)
-        print("Subject:", subject)
-
-        attachments = notice.get(
-            "attachments",
-            []
-        )
-
-        print(
-            "Attachments:",
-            len(attachments)
-        )
-
-        # --------------------------------------------------
-        # Process downloaded PDFs
-        # --------------------------------------------------
+        print("-------------------------------------------")
+        print(f"Notice ID: {notice_id}")
+        print(f"Subject: {subject}")
 
         for attachment in attachments:
 
             pdf_path = attachment.get("path")
 
             if not pdf_path:
-
-                print(
-                    "PDF was not downloaded."
-                )
-
+                print("No PDF path found.")
                 continue
 
-            print(
-                "PDF:",
-                pdf_path
+            text = extract_text_from_pdf(pdf_path)
+
+            if not text:
+                print("No text extracted from PDF.")
+                continue
+
+            result = classify_notice(
+                subject=subject,
+                text=text,
+                notice_id=notice_id
             )
 
-            # --------------------------------------------------
-            # Extract PDF text
-            # --------------------------------------------------
+            print()
+            print("Classification:")
+            print(f"  Type:      {result['notice_type']}")
+            print(f"  Programme: {result['programme']}")
+            print(f"  Branch:    {result['branch']}")
+            print(f"  Priority:  {result['priority']}")
 
-            try:
+            classified_count += 1
 
-                text = extract_text_from_pdf(
-                    pdf_path
-                )
-
-                if text:
-
-                    print(
-                        "Extracted text:",
-                        f"{len(text):,}",
-                        "characters"
-                    )
-
-                else:
-
-                    print(
-                        "No text could be extracted."
-                    )
-
-            except Exception as e:
-
-                print(
-                    "PDF parsing error:",
-                    e
-                )
+            # Only classify the first PDF for now
+            break
 
     print()
-    print(
-        "========== SCRAPER FINISHED =========="
-    )
+    print("===========================================")
+    print(f"Classified notices: {classified_count}")
+    print("===========================================")
 
 
 if __name__ == "__main__":
-
     process_notices()
