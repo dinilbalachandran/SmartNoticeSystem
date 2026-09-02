@@ -15,19 +15,30 @@ def initialize_database():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS faculty (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             name TEXT NOT NULL,
-
+            programme TEXT NOT NULL DEFAULT 'Unknown',
             department TEXT NOT NULL,
-
             email TEXT UNIQUE NOT NULL,
-
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
         )
     """)
+
+    # Add programme column to existing faculty table
+    faculty_columns = cursor.execute(
+        "PRAGMA table_info(faculty)"
+    ).fetchall()
+
+    column_names = [
+        column["name"]
+        for column in faculty_columns
+    ]
+
+    if "programme" not in column_names:
+        cursor.execute("""
+            ALTER TABLE faculty
+            ADD COLUMN programme TEXT NOT NULL DEFAULT 'Unknown'
+        """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS departments (
@@ -92,6 +103,37 @@ def initialize_database():
         )
     """)
 
+    # ------------------------------------------------------
+    # Migration: Add classification fields to notices
+    # ------------------------------------------------------
+
+    notice_columns = cursor.execute(
+        "PRAGMA table_info(notices)"
+    ).fetchall()
+
+    notice_column_names = [
+        column["name"]
+        for column in notice_columns
+    ]
+
+    if "programme" not in notice_column_names:
+        cursor.execute("""
+            ALTER TABLE notices
+            ADD COLUMN programme TEXT NOT NULL DEFAULT 'Unknown'
+        """)
+
+    if "branch" not in notice_column_names:
+        cursor.execute("""
+            ALTER TABLE notices
+            ADD COLUMN branch TEXT NOT NULL DEFAULT 'ALL'
+        """)
+
+    if "priority" not in notice_column_names:
+        cursor.execute("""
+            ALTER TABLE notices
+            ADD COLUMN priority TEXT NOT NULL DEFAULT 'Low'
+        """)
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS notice_departments (
 
@@ -141,6 +183,7 @@ def get_all_faculty(search="", department=""):
         query += """
             AND (
                 name LIKE ?
+                OR programme LIKE ?
                 OR department LIKE ?
                 OR email LIKE ?
             )
@@ -149,6 +192,7 @@ def get_all_faculty(search="", department=""):
         search_value = f"%{search}%"
 
         parameters.extend([
+            search_value,
             search_value,
             search_value,
             search_value
@@ -176,15 +220,25 @@ def get_all_faculty(search="", department=""):
     return faculty
 
 
-def add_faculty(name, department, email):
+def add_faculty(
+    name,
+    department,
+    email,
+    programme="Unknown"
+):
 
     conn = get_connection()
 
     conn.execute("""
         INSERT INTO faculty
-        (name, department, email)
-        VALUES (?, ?, ?)
-    """, (name, department, email))
+        (name, programme, department, email)
+        VALUES (?, ?, ?, ?)
+    """, (
+        name,
+        programme,
+        department,
+        email
+    ))
 
     conn.commit()
 
@@ -203,18 +257,49 @@ def delete_faculty(faculty_id):
 
     conn.close()
 
-def update_faculty(id, name, department, email):
+def update_faculty(
+    id,
+    name,
+    department,
+    email,
+    programme=None
+):
 
     conn = get_connection()
 
-    conn.execute("""
-        UPDATE faculty
-        SET
-            name = ?,
-            department = ?,
-            email = ?
-        WHERE id = ?
-    """, (name, department, email, id))
+    if programme is None:
+
+        conn.execute("""
+            UPDATE faculty
+            SET
+                name = ?,
+                department = ?,
+                email = ?
+            WHERE id = ?
+        """, (
+            name,
+            department,
+            email,
+            id
+        ))
+
+    else:
+
+        conn.execute("""
+            UPDATE faculty
+            SET
+                name = ?,
+                programme = ?,
+                department = ?,
+                email = ?
+            WHERE id = ?
+        """, (
+            name,
+            programme,
+            department,
+            email,
+            id
+        ))
 
     conn.commit()
 
@@ -312,6 +397,26 @@ def get_all_notice_sources():
     return sources
 
 
+def get_ktu_source_id():
+
+    conn = get_connection()
+
+    source = conn.execute("""
+        SELECT id
+        FROM notice_sources
+        WHERE website_url = ?
+        LIMIT 1
+    """, (
+        "https://ktu.edu.in/Menu/announcements",
+    )).fetchone()
+
+    conn.close()
+
+    if source:
+        return source["id"]
+
+    return None
+
 def add_notice_source(name, url, interval):
 
     conn = get_connection()
@@ -374,7 +479,10 @@ def add_notice(
     notice_url,
     published_date,
     category,
-    department_ids
+    department_ids,
+    programme="Unknown",
+    branch="ALL",
+    priority="Low"
 ):
 
     conn = get_connection()
@@ -390,16 +498,22 @@ def add_notice(
             source_id,
             notice_url,
             published_date,
-            category
+            category,
+            programme,
+            branch,
+            priority
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         title,
         content,
         source_id,
         notice_url,
         published_date,
-        category
+        category,
+        programme,
+        branch,
+        priority
     ))
 
     notice_id = cursor.lastrowid
@@ -425,6 +539,76 @@ def add_notice(
 
     return notice_id
 
+def save_classified_notice(
+    title,
+    content,
+    source_id,
+    notice_url,
+    published_date,
+    notice_type,
+    programme,
+    branch,
+    priority
+):
+
+    conn = get_connection()
+
+    # ------------------------------------------------------
+    # Prevent duplicate notices
+    # ------------------------------------------------------
+
+    existing = conn.execute("""
+        SELECT id
+        FROM notices
+        WHERE title = ?
+          AND source_id = ?
+    """, (
+        title,
+        source_id
+    )).fetchone()
+
+    if existing:
+        conn.close()
+        return existing["id"]
+
+    # ------------------------------------------------------
+    # Save classified notice
+    # ------------------------------------------------------
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO notices
+        (
+            title,
+            content,
+            source_id,
+            notice_url,
+            published_date,
+            category,
+            programme,
+            branch,
+            priority
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        title,
+        content,
+        source_id,
+        notice_url,
+        published_date,
+        notice_type,
+        programme,
+        branch,
+        priority
+    ))
+
+    notice_id = cursor.lastrowid
+
+    conn.commit()
+    conn.close()
+
+    return notice_id
 
 def get_all_notices(search=""):
 

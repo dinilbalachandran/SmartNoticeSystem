@@ -145,7 +145,10 @@ def add_notice_route():
         notice_url,
         published_date,
         category,
-        department_ids
+        department_ids,
+        programme="Unknown",
+        branch="ALL",
+        priority="Low"
     )
 
     return redirect(

@@ -48,7 +48,7 @@ body{
 
     flex-direction:column;
 
-    justify-content:space-between;
+    justify-content:flex-start;
 
 }
 
@@ -176,6 +176,8 @@ body{
 
     flex-direction:column;
 
+    min-width:0;
+
 }
 
 /* ==========================
@@ -275,13 +277,10 @@ body{
 }
 
 .page-content{
-
     padding:40px;
-
+    padding-top:40px;
     background:radial-gradient(circle at top,#111827,#0B1220);
-
     min-height:calc(100vh - 72px);
-
 }
 
 /* ==========================

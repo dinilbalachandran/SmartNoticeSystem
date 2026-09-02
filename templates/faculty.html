@@ -147,6 +147,8 @@ Faculty Management
 
                     <th>Name</th>
 
+                    <th>Programme</th>
+
                     <th>Department</th>
 
                     <th>Email</th>
@@ -166,6 +168,10 @@ Faculty Management
 
                     <td>
                         {{ faculty.name }}
+                    </td>
+
+                    <td>
+                        {{ faculty.programme }}
                     </td>
 
                     <td>
@@ -231,6 +237,48 @@ Faculty Management
 
                                     <input class="form-control mb-3" name="name" value="{{ faculty.name }}" required>
 
+                                    <select class="form-select mb-3" name="programme" required>
+
+                                        <option value="">
+                                            Select Programme
+                                        </option>
+
+                                        <option value="B.Tech"
+                                            {% if faculty.programme == "B.Tech" %}selected{% endif %}>
+                                            B.Tech
+                                        </option>
+
+                                        <option value="M.Tech"
+                                            {% if faculty.programme == "M.Tech" %}selected{% endif %}>
+                                            M.Tech
+                                        </option>
+
+                                        <option value="MCA"
+                                            {% if faculty.programme == "MCA" %}selected{% endif %}>
+                                            MCA
+                                        </option>
+
+                                        <option value="B.Des"
+                                            {% if faculty.programme == "B.Des" %}selected{% endif %}>
+                                            B.Des
+                                        </option>
+
+                                        <option value="B.Arch"
+                                            {% if faculty.programme == "B.Arch" %}selected{% endif %}>
+                                            B.Arch
+                                        </option>
+
+                                        <option value="B.HMCT"
+                                            {% if faculty.programme == "B.HMCT" %}selected{% endif %}>
+                                            B.HMCT
+                                        </option>
+
+                                        <option value="PhD"
+                                            {% if faculty.programme == "PhD" %}selected{% endif %}>
+                                            PhD
+                                        </option>
+
+                                    </select>
 
                                     <select class="form-select mb-3" name="department" required>
 
@@ -291,7 +339,7 @@ Faculty Management
 
                 <tr>
 
-                    <td colspan="4" class="text-center py-4">
+                    <td colspan="5" class="text-center py-4">
 
                         <i class="bi bi-search fs-3 d-block mb-2"></i>
 
@@ -339,6 +387,19 @@ Faculty Management
 
                     <input class="form-control mb-3" name="name" placeholder="Faculty Name" required>
 
+                    <select class="form-select mb-3" name="programme" required>
+                        <option value="">
+                            Select Programme
+                        </option>
+
+                        <option value="B.Tech">B.Tech</option>
+                        <option value="M.Tech">M.Tech</option>
+                        <option value="MCA">MCA</option>
+                        <option value="B.Des">B.Des</option>
+                        <option value="B.Arch">B.Arch</option>
+                        <option value="B.HMCT">B.HMCT</option>
+                        <option value="PhD">PhD</option>
+                    </select>
 
                     <select class="form-select mb-3" name="department" required>
 

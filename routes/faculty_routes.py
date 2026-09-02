@@ -50,22 +50,19 @@ def faculty():
 
 @faculty_bp.route("/faculty/add", methods=["POST"])
 def add_faculty_route():
-
     name = request.form["name"]
-
+    programme = request.form["programme"]
     department = request.form["department"]
-
     email = request.form["email"]
 
     add_faculty(
         name,
         department,
-        email
+        email,
+        programme
     )
 
-    return redirect(
-        url_for("faculty.faculty")
-    )
+    return redirect(url_for("faculty.faculty"))
 
 
 # =========================
@@ -88,22 +85,18 @@ def delete_faculty_route(id):
 
 @faculty_bp.route("/faculty/update", methods=["POST"])
 def update_faculty_route():
-
     id = request.form["id"]
-
     name = request.form["name"]
-
+    programme = request.form["programme"]
     department = request.form["department"]
-
     email = request.form["email"]
 
     update_faculty(
         id,
         name,
         department,
-        email
+        email,
+        programme
     )
 
-    return redirect(
-        url_for("faculty.faculty")
-    )
+    return redirect(url_for("faculty.faculty"))
