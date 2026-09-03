@@ -10,6 +10,180 @@ Email Logs
 
 {% block content %}
 
-<h2>Email Logs</h2>
+<!-- Page Header -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2>Email Logs</h2>
+
+        <p>
+            History of notice email notifications.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- Email Logs Table -->
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h5>
+
+            <i class="bi bi-envelope"></i>
+
+            Notification History
+
+        </h5>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle email-log-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Log ID</th>
+                    <th>Notice ID</th>
+                    <th>Notice</th>
+
+                    <th>Faculty</th>
+
+                    <th>Email</th>
+
+                    <th>Subject</th>
+
+                    <th>Status</th>
+
+                    <th>Sent At</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for log in logs %}
+
+                <tr>
+
+                    <td>
+                        {{ log["id"] }}
+                    </td>
+
+                    <td>
+                        <span class="badge bg-primary">
+                            {{ log["notice_id"] }}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            {{ log["notice_title"] }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+                        {{ log["faculty_name"] }}
+                    </td>
+
+
+                    <td>
+                        {{ log["recipient_email"] }}
+                    </td>
+
+
+                    <td>
+                        {{ log["subject"] }}
+                    </td>
+
+
+                    <td>
+
+                        {% if log["status"] == "Sent" %}
+
+                        <span class="badge bg-success">
+                            Sent
+                        </span>
+
+                        {% elif log["status"] == "Failed" %}
+
+                        <span class="badge bg-danger">
+                            Failed
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-warning text-dark">
+                            {{ log["status"] }}
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class="sent-at-cell">
+
+                        {% if log["sent_at"] %}
+
+                            {% set sent_parts = log["sent_at"].split(" ") %}
+
+                            <span>
+                                {{ sent_parts[0] }}
+                            </span>
+
+                            {% if sent_parts|length > 1 %}
+                            <span class="sent-time">
+                                {{ sent_parts[1] }}
+                            </span>
+                            {% endif %}
+
+                        {% else %}
+
+                            <span>—</span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="text-center text-secondary py-4">
+
+                        No email logs available.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 {% endblock %}

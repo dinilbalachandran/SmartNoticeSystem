@@ -1019,3 +1019,80 @@ thead th{
 .notice-history-table td:nth-child(10) {
     white-space: nowrap;
 }
+
+
+/* ==========================
+   Email Logs Table
+========================== */
+
+.email-log-table {
+    width: 100%;
+    min-width: 1100px;
+    table-layout: fixed;
+}
+
+.email-log-table th,
+.email-log-table td {
+    vertical-align: middle;
+    padding: 14px 10px;
+}
+
+.email-log-table th {
+    white-space: nowrap;
+}
+
+.email-log-table th:nth-child(1) {
+    width: 5%;
+}
+
+.email-log-table th:nth-child(2) {
+    width: 7%;
+}
+
+.email-log-table th:nth-child(3) {
+    width: 23%;
+}
+
+.email-log-table th:nth-child(4) {
+    width: 13%;
+}
+
+.email-log-table th:nth-child(5) {
+    width: 15%;
+}
+
+.email-log-table th:nth-child(6) {
+    width: 17%;
+}
+
+.email-log-table th:nth-child(7) {
+    width: 8%;
+}
+
+.email-log-table th:nth-child(8) {
+    width: 12%;
+}
+
+.email-log-table td:nth-child(3),
+.email-log-table td:nth-child(6) {
+    overflow-wrap: anywhere;
+}
+
+.email-log-table td:nth-child(7),
+.email-log-table td:nth-child(8) {
+    white-space: nowrap;
+}
+
+.sent-at-cell {
+    white-space: nowrap;
+}
+
+.sent-at-cell span {
+    display: block;
+}
+
+.sent-at-cell .sent-time {
+    margin-top: 3px;
+    color: #94A3B8;
+    font-size: 14px;
+}

@@ -2,7 +2,12 @@ from scraper.ktu_browser import scrape_ktu
 from scraper.notice_parser import extract_text_from_pdf
 from classifier.classifier import classify_notice
 from routes.notice_router import route_notice
-from database.database import (save_classified_notice, get_ktu_source_id)
+from email_service.email_service import send_notice_email
+from database.database import (
+    save_classified_notice,
+    get_ktu_source_id,
+    email_already_sent
+)
 
 
 def process_notices():
@@ -77,13 +82,7 @@ def process_notices():
             print("Routing:")
             print(f"  Faculty matched: {len(faculty_list)}")
 
-            for faculty in faculty_list:
-                print(
-                    f"  - {faculty['name']} | "
-                    f"{faculty['programme']} | "
-                    f"{faculty['department']} | "
-                    f"{faculty['email']}"
-                )
+            
 
             # ------------------------------------------------------
             # Save classified notice to database
@@ -103,6 +102,79 @@ def process_notices():
 
             print()
             print(f"Database notice ID: {notice_db_id}")
+
+            # ------------------------------------------------------
+            # Send notice email to routed faculty
+            # ------------------------------------------------------
+
+            if faculty_list:
+
+                print()
+                print("Email Notifications:")
+
+                for faculty in faculty_list:
+
+                    if email_already_sent(
+                        notice_db_id,
+                        faculty["id"]
+                    ):
+                        print(
+                            f"  - Already sent to {faculty['name']}, skipping"
+                        )
+                        continue
+
+                    email_subject = f"[SmartNotice] {subject}"
+
+                    email_body = f"""
+                    Smart University Notice Classification & Routing System
+
+                    A new university notice has been detected.
+
+                    Notice:
+                    {subject}
+
+                    Category:
+                    {result["notice_type"]}
+
+                    Programme:
+                    {result["programme"]}
+
+                    Branch:
+                    {result["branch"]}
+
+                    Priority:
+                    {result["priority"]}
+
+                    Published Date:
+                    {notice.get("date")}
+
+                    This notice has been routed to you by the Smart Notice System.
+                    """
+
+                    email_sent = send_notice_email(
+                        notice_id=notice_db_id,
+                        faculty_id=faculty["id"],
+                        recipient_email=faculty["email"],
+                        subject=email_subject,
+                        body=email_body
+                    )
+
+                    if email_sent:
+                        print(
+                            f"  - Sent to {faculty['name']} "
+                            f"({faculty['email']})"
+                        )
+                    else:
+                        print(
+                            f"  - Failed for {faculty['name']} "
+                            f"({faculty['email']})"
+                        )
+
+            else:
+
+                print()
+                print("Email Notifications:")
+                print("  No faculty members matched this notice.")
 
             classified_count += 1
 

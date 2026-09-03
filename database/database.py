@@ -103,6 +103,42 @@ def initialize_database():
         )
     """)
 
+    # -----------------------------
+    # Email Logs
+    # -----------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS email_logs (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            notice_id INTEGER NOT NULL,
+
+            faculty_id INTEGER NOT NULL,
+
+            recipient_email TEXT NOT NULL,
+
+            subject TEXT NOT NULL,
+
+            status TEXT NOT NULL DEFAULT 'Pending',
+
+            sent_at TIMESTAMP,
+
+            error_message TEXT,
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (notice_id)
+                REFERENCES notices(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (faculty_id)
+                REFERENCES faculty(id)
+                ON DELETE CASCADE
+
+        )
+    """)
+
     # ------------------------------------------------------
     # Migration: Add classification fields to notices
     # ------------------------------------------------------
@@ -739,3 +775,98 @@ def delete_notice(notice_id):
 
     conn.close()
 
+
+
+def create_email_log(
+    notice_id,
+    faculty_id,
+    recipient_email,
+    subject
+):
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO email_logs
+        (
+            notice_id,
+            faculty_id,
+            recipient_email,
+            subject,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        notice_id,
+        faculty_id,
+        recipient_email,
+        subject,
+        "Pending"
+    ))
+
+    log_id = cursor.lastrowid
+
+    conn.commit()
+    conn.close()
+
+    return log_id
+
+
+def update_email_log(
+    log_id,
+    status,
+    error_message=None
+):
+    conn = get_connection()
+
+    if status == "Sent":
+
+        conn.execute("""
+            UPDATE email_logs
+            SET
+                status = ?,
+                sent_at = CURRENT_TIMESTAMP,
+                error_message = ?
+            WHERE id = ?
+        """, (
+            status,
+            error_message,
+            log_id
+        ))
+
+    else:
+
+        conn.execute("""
+            UPDATE email_logs
+            SET
+                status = ?,
+                error_message = ?
+            WHERE id = ?
+        """, (
+            status,
+            error_message,
+            log_id
+        ))
+
+    conn.commit()
+    conn.close()
+
+def email_already_sent(notice_id, faculty_id):
+    conn = get_connection()
+
+    existing = conn.execute("""
+        SELECT id
+        FROM email_logs
+        WHERE notice_id = ?
+          AND faculty_id = ?
+          AND status = 'Sent'
+        LIMIT 1
+    """, (
+        notice_id,
+        faculty_id
+    )).fetchone()
+
+    conn.close()
+
+    return existing is not None

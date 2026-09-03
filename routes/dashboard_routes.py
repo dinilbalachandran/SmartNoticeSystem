@@ -20,6 +20,10 @@ def dashboard():
         "SELECT COUNT(*) FROM notice_sources"
     ).fetchone()[0]
 
+    total_emails_sent = conn.execute(
+    "SELECT COUNT(*) FROM email_logs WHERE status = 'Sent'"
+    ).fetchone()[0]
+
     recent_notices = conn.execute("""
         SELECT *
         FROM notices
@@ -34,5 +38,6 @@ def dashboard():
         total_notices=total_notices,
         total_faculty=total_faculty,
         total_sources=total_sources,
+        total_emails_sent=total_emails_sent,
         recent_notices=recent_notices
     )
