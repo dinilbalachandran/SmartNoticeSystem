@@ -170,6 +170,12 @@ def initialize_database():
             ADD COLUMN priority TEXT NOT NULL DEFAULT 'Low'
         """)
 
+    if "pdf_path" not in notice_column_names:
+        cursor.execute("""
+            ALTER TABLE notices
+            ADD COLUMN pdf_path TEXT
+        """)
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS notice_departments (
 
@@ -584,7 +590,8 @@ def save_classified_notice(
     notice_type,
     programme,
     branch,
-    priority
+    priority,
+    pdf_path=None
 ):
 
     conn = get_connection()
@@ -604,6 +611,30 @@ def save_classified_notice(
     )).fetchone()
 
     if existing:
+        conn.execute(
+            """
+            UPDATE notices
+            SET
+                content = ?,
+                category = ?,
+                programme = ?,
+                branch = ?,
+                priority = ?,
+                pdf_path = COALESCE(?, pdf_path)
+            WHERE id = ?
+            """,
+            (
+                content,
+                notice_type,
+                programme,
+                branch,
+                priority,
+                pdf_path,
+                existing["id"]
+            )
+        )
+
+        conn.commit()
         conn.close()
         return existing["id"]
 
@@ -624,9 +655,10 @@ def save_classified_notice(
             category,
             programme,
             branch,
-            priority
+            priority,
+            pdf_path
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         title,
         content,
@@ -636,7 +668,8 @@ def save_classified_notice(
         notice_type,
         programme,
         branch,
-        priority
+        priority,
+        pdf_path
     ))
 
     notice_id = cursor.lastrowid
@@ -870,3 +903,15 @@ def email_already_sent(notice_id, faculty_id):
     conn.close()
 
     return existing is not None
+
+def update_source_last_checked(source_id):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE notice_sources
+        SET last_checked = CURRENT_TIMESTAMP
+        WHERE id = ?
+    """, (source_id,))
+
+    conn.commit()
+    conn.close()

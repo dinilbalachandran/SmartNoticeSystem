@@ -3,6 +3,9 @@ from flask import render_template
 from flask import request
 from flask import redirect
 from flask import url_for
+from flask import send_file
+
+from pathlib import Path
 
 from database.database import (
     get_all_notice_sources,
@@ -122,6 +125,34 @@ def notice_details(id):
         notice=notice,
         departments=departments,
         routed_faculty=routed_faculty
+    )
+
+# =========================
+# View Notice PDF
+# =========================
+
+@notice_bp.route("/notice/<int:id>/pdf")
+def view_notice_pdf(id):
+
+    notice = get_notice_by_id(id)
+
+    if notice is None:
+        return "Notice not found", 404
+
+    pdf_path = notice["pdf_path"]
+
+    if not pdf_path:
+        return "PDF not available", 404
+
+    file_path = Path(pdf_path)
+
+    if not file_path.exists():
+        return "PDF file not found", 404
+
+    return send_file(
+        file_path,
+        mimetype="application/pdf",
+        as_attachment=False
     )
 
 # =========================

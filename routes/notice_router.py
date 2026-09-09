@@ -18,8 +18,14 @@ def route_notice(programme, branch):
 
     # Do not route notices when programme is unknown
     if not programme or programme == "Unknown":
+        faculty = conn.execute("""
+            SELECT * FROM faculty
+            ORDER BY name
+        """).fetchall()
+
         conn.close()
-        return []
+
+        return [dict(row) for row in faculty]
 
     # ------------------------------------------------------
     # Specific branch

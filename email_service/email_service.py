@@ -8,7 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def send_email(recipient_email, subject, body):
+def send_email(
+    recipient_email,
+    subject,
+    body,
+    attachment_path=None
+):
     """
     Send an email using the configured SMTP server.
     """
@@ -38,6 +43,16 @@ def send_email(recipient_email, subject, body):
     message["Subject"] = subject
 
     message.set_content(body)
+    if attachment_path:
+
+        with open(attachment_path, "rb") as attachment:
+
+            message.add_attachment(
+                attachment.read(),
+                maintype="application",
+                subtype="pdf",
+                filename=os.path.basename(attachment_path)
+            )
 
     with smtplib.SMTP(smtp_host, smtp_port) as server:
 
@@ -60,7 +75,8 @@ def send_notice_email(
     faculty_id,
     recipient_email,
     subject,
-    body
+    body,
+    attachment_path=None
 ):
     """
     Send a notice email and record the result in email_logs.
@@ -78,7 +94,8 @@ def send_notice_email(
         send_email(
             recipient_email,
             subject,
-            body
+            body,
+            attachment_path
         )
 
         update_email_log(

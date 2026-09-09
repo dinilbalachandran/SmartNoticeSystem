@@ -5,10 +5,26 @@ import re
 # TEXT PREPROCESSING
 # ==========================================================
 
+def normalize_text(text=""):
+    """
+    Convert text into a clean lowercase string.
+    """
+
+    text = text or ""
+
+    text = re.sub(
+        r"\s+",
+        " ",
+        text
+    )
+
+    return text.strip().lower()
+
+
 def prepare_text(subject="", text=""):
     """
-    Combine the notice subject and extracted PDF text
-    into one searchable lowercase string.
+    Combine subject and PDF text.
+    Kept for compatibility with the rest of the project.
     """
 
     subject = subject or ""
@@ -16,14 +32,7 @@ def prepare_text(subject="", text=""):
 
     combined_text = f"{subject} {text}"
 
-    # Convert multiple spaces/newlines into one space
-    combined_text = re.sub(
-        r"\s+",
-        " ",
-        combined_text
-    )
-
-    return combined_text.strip().lower()
+    return normalize_text(combined_text)
 
 
 # ==========================================================
@@ -33,12 +42,37 @@ def prepare_text(subject="", text=""):
 def classify_notice_type(subject="", text=""):
     """
     Determine the general type of the notice.
+
+    For KTU notices, the subject/title is the primary
+    classification source. PDF text is used only when
+    the subject does not provide enough information.
     """
 
-    content = prepare_text(
-        subject,
-        text
-    )
+    subject_content = normalize_text(subject)
+
+    # ------------------------------------------------------
+    # Recruitment / Appointment
+    # Check FIRST because recruitment PDFs can contain
+    # words such as "examination", "PhD", etc.
+    # ------------------------------------------------------
+
+    recruitment_keywords = [
+        "recruitment",
+        "appointment",
+        "vacancy",
+        "statutory position",
+        "administrative position",
+        "statutory and administrative positions",
+        "positions",
+        "last date for receipt of applications",
+        "receipt of applications",
+        "applications to various"
+    ]
+
+    for keyword in recruitment_keywords:
+
+        if keyword in subject_content:
+            return "Recruitment"
 
     # ------------------------------------------------------
     # Result
@@ -48,14 +82,16 @@ def classify_notice_type(subject="", text=""):
         "publication of result",
         "publication of results",
         "result publication",
-        "results",
-        "result"
+        "result notification",
+        "results published",
+        "result",
+        "results"
     ]
 
     for keyword in result_keywords:
-        if keyword in content:
-            return "Result"
 
+        if keyword in subject_content:
+            return "Result"
 
     # ------------------------------------------------------
     # Examination
@@ -71,16 +107,9 @@ def classify_notice_type(subject="", text=""):
         "examination registration"
     ]
 
-    # Avoid false classification when "examinations"
-    # appears only as part of a job/designation title.
-    if "controller of examinations" in content:
-        content = content.replace(
-            "controller of examinations",
-            ""
-        )
-
     for keyword in examination_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
             return "Examination"
 
     # ------------------------------------------------------
@@ -95,7 +124,8 @@ def classify_notice_type(subject="", text=""):
     ]
 
     for keyword in admission_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
             return "Admission"
 
     # ------------------------------------------------------
@@ -105,13 +135,13 @@ def classify_notice_type(subject="", text=""):
     academic_keywords = [
         "academic calendar",
         "academic year",
-        "semester",
         "course duration",
         "academic schedule"
     ]
 
     for keyword in academic_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
             return "Academic"
 
     # ------------------------------------------------------
@@ -127,24 +157,70 @@ def classify_notice_type(subject="", text=""):
     ]
 
     for keyword in sports_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
             return "Sports"
 
     # ------------------------------------------------------
-    # Recruitment / Appointment
+    # FALLBACK
+    #
+    # Only when the subject does not identify the type,
+    # use the PDF text.
     # ------------------------------------------------------
 
-    recruitment_keywords = [
-        "recruitment",
-        "appointment",
-        "vacancy",
-        "statutory position",
-        "administrative position"
-    ]
+    full_content = prepare_text(
+        subject,
+        text
+    )
+
+    # Remove common false-positive phrase
+
+    full_content = full_content.replace(
+        "controller of examinations",
+        ""
+    )
+
+    # Recruitment fallback
 
     for keyword in recruitment_keywords:
-        if keyword in content:
+
+        if keyword in full_content:
             return "Recruitment"
+
+    # Result fallback
+
+    for keyword in result_keywords:
+
+        if keyword in full_content:
+            return "Result"
+
+    # Examination fallback
+
+    for keyword in examination_keywords:
+
+        if keyword in full_content:
+            return "Examination"
+
+    # Admission fallback
+
+    for keyword in admission_keywords:
+
+        if keyword in full_content:
+            return "Admission"
+
+    # Academic fallback
+
+    for keyword in academic_keywords:
+
+        if keyword in full_content:
+            return "Academic"
+
+    # Sports fallback
+
+    for keyword in sports_keywords:
+
+        if keyword in full_content:
+            return "Sports"
 
     # ------------------------------------------------------
     # General
@@ -159,90 +235,65 @@ def classify_notice_type(subject="", text=""):
 
 def classify_programme(subject="", text=""):
     """
-    Identify the academic programme mentioned in the notice.
+    Determine the programme from the KTU notice subject.
+
+    The subject/title is the primary source because PDF content
+    may mention other programmes that are unrelated to the notice.
     """
 
-    content = prepare_text(
-        subject,
-        text
-    )
+    subject_content = normalize_text(subject)
 
     # ------------------------------------------------------
-    # M.Tech
+    # Recruitment notices
+    #
+    # Do not infer a programme from the PDF for recruitment
+    # notices. Recruitment PDFs may mention PhD, B.Tech, etc.
     # ------------------------------------------------------
 
-    if re.search(
-        r"\bm\s*\.?\s*tech\b|\bmtech\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "M.Tech"
+    recruitment_keywords = [
+        "recruitment",
+        "appointment",
+        "vacancy",
+        "statutory position",
+        "administrative position",
+        "statutory and administrative positions",
+        "positions",
+        "last date for receipt of applications",
+        "receipt of applications",
+        "applications to various"
+    ]
+
+    for keyword in recruitment_keywords:
+        if keyword in subject_content:
+            return "Unknown"
 
     # ------------------------------------------------------
-    # B.Tech
+    # Programme classification from SUBJECT
     # ------------------------------------------------------
 
-    if re.search(
-        r"\bb\s*\.?\s*tech\b|\bbtech\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "B.Tech"
+    programme_patterns = [
+        ("B.HMCT", ["b.hmct", "bhmct", "b hmct"]),
+        ("B.Arch", ["b.arch", "barch", "b arch"]),
+        ("B.Des", ["b.des", "bdes", "b des"]),
+        ("M.Tech", ["m.tech", "mtech", "m tech"]),
+        ("B.Tech", ["b.tech", "btech", "b tech"]),
+        ("MCA", ["mca"]),
+        ("PhD", ["phd", "ph.d"]),
+    ]
+
+    for programme, keywords in programme_patterns:
+
+        for keyword in keywords:
+
+            if keyword in subject_content:
+                return programme
 
     # ------------------------------------------------------
-    # MCA
+    # No programme found in subject
+    #
+    # Do NOT inspect PDF text here.
+    # This prevents false programme classification.
     # ------------------------------------------------------
-
-    if re.search(
-        r"\bmca\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "MCA"
-
-    # ------------------------------------------------------
-    # B.Des
-    # ------------------------------------------------------
-
-    if re.search(
-        r"\bb\s*\.?\s*des\b|\bbdes\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "B.Des"
-
-    # ------------------------------------------------------
-    # B.Arch
-    # ------------------------------------------------------
-
-    if re.search(
-        r"\bb\s*\.?\s*arch\b|\bbarch\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "B.Arch"
-
-    # ------------------------------------------------------
-    # B.HMCT
-    # ------------------------------------------------------
-
-    if re.search(
-        r"\bb\s*\.?\s*hmct\b|\bhmct\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "B.HMCT"
-
-    # ------------------------------------------------------
-    # PhD
-    # ------------------------------------------------------
-
-    if re.search(
-        r"\bph\s*\.?\s*d\b|\bphd\b",
-        content,
-        re.IGNORECASE
-    ):
-        return "PhD"
 
     return "Unknown"
 
@@ -251,26 +302,18 @@ def classify_programme(subject="", text=""):
 # BRANCH CLASSIFICATION
 # ==========================================================
 
-def classify_branch(
-    subject="",
-    text="",
-    programme=None
-):
+def classify_branch(subject="", text="", programme=""):
     """
-    Identify the specific branch/department.
+    Determine the branch from the KTU notice subject.
 
-    This function currently uses keyword matching.
-    It will be expanded after examining actual KTU
-    notice contents.
+    The subject is the primary source. PDF text is not used for
+    branch detection because it may contain unrelated branches.
     """
 
-    content = prepare_text(
-        subject,
-        text
-    )
+    subject_content = normalize_text(subject)
 
     # ------------------------------------------------------
-    # Programme-specific handling
+    # Programmes where branch routing is not required
     # ------------------------------------------------------
 
     if programme in [
@@ -283,85 +326,94 @@ def classify_branch(
         return "ALL"
 
     # ------------------------------------------------------
-    # Computer Science
+    # B.Tech branches
     # ------------------------------------------------------
 
-    if (
-        "computer science and engineering" in content
-        or "computer science" in content
-        or re.search(r"\bcse\b", content)
-    ):
-        return "CSE"
+    if programme == "B.Tech":
+
+        branch_patterns = [
+            ("CSE", [
+                "cse",
+                "computer science",
+                "computer science and engineering"
+            ]),
+            ("ECE", [
+                "ece",
+                "electronics and communication",
+                "electronics & communication"
+            ]),
+            ("EEE", [
+                "eee",
+                "electrical and electronics",
+                "electrical & electronics"
+            ]),
+            ("ME", [
+                "mechanical engineering",
+                "me department",
+                "me branch"
+            ]),
+            ("CE", [
+                "civil engineering",
+                "ce department",
+                "ce branch"
+            ]),
+            ("IT", [
+                "information technology",
+                "it department",
+                "it branch"
+            ])
+        ]
+
+        for branch, keywords in branch_patterns:
+
+            for keyword in keywords:
+
+                if keyword in subject_content:
+                    return branch
+
+        # Generic B.Tech notice
+        return "ALL"
 
     # ------------------------------------------------------
-    # Electronics and Communication
+    # M.Tech branches
     # ------------------------------------------------------
 
-    if (
-        "electronics and communication engineering"
-        in content
-        or "electronics & communication engineering"
-        in content
-        or re.search(r"\bece\b", content)
-    ):
-        return "ECE"
+    if programme == "M.Tech":
+
+        if (
+            "cse" in subject_content
+            or "computer science" in subject_content
+            or "computer science and engineering" in subject_content
+        ):
+            return "CSE"
+
+        if (
+            "ece" in subject_content
+            or "electronics and communication" in subject_content
+            or "electronics & communication" in subject_content
+        ):
+            return "ECE"
+
+        if (
+            "eee" in subject_content
+            or "electrical and electronics" in subject_content
+            or "electrical & electronics" in subject_content
+        ):
+            return "EEE"
+
+        if "mechanical engineering" in subject_content:
+            return "ME"
+
+        if "civil engineering" in subject_content:
+            return "CE"
+
+        if "information technology" in subject_content:
+            return "IT"
+
+        return "ALL"
 
     # ------------------------------------------------------
-    # Electrical and Electronics
-    # ------------------------------------------------------
-
-    if (
-        "electrical and electronics engineering"
-        in content
-        or "electrical & electronics engineering"
-        in content
-        or re.search(r"\beee\b", content)
-    ):
-        return "EEE"
-
-    # ------------------------------------------------------
-    # Mechanical
-    # ------------------------------------------------------
-
-    if (
-        "mechanical engineering" in content
-        or re.search(r"\bme\b", content)
-    ):
-        return "ME"
-
-    # ------------------------------------------------------
-    # Civil
-    # ------------------------------------------------------
-
-    if (
-        "civil engineering" in content
-        or re.search(r"\bce\b", content)
-    ):
-        return "CE"
-
-    # ------------------------------------------------------
-    # Information Technology
-    # ------------------------------------------------------
-
-    if (
-        "information technology" in content
-        or "information technology and engineering" in content
-        or re.search(r"\b(i\.?t\.?)\s+engineering\b", content)
-    ):
-        return "IT"
-
-    # ------------------------------------------------------
-    # Architecture
-    # ------------------------------------------------------
-
-    if (
-        "architecture" in content
-        or re.search(r"\barch\b", content)
-    ):
-        return "Architecture"
-
-    # ------------------------------------------------------
-    # No specific branch found
+    # Unknown programme
     # ------------------------------------------------------
 
     return "ALL"
@@ -389,10 +441,8 @@ def classify_priority(
         General notices
     """
 
-    content = prepare_text(
-        subject,
-        text
-    )
+    subject_content = normalize_text(subject)
+    full_content = prepare_text(subject, text)
 
     # ------------------------------------------------------
     # High priority
@@ -411,15 +461,28 @@ def classify_priority(
     ]
 
     for keyword in high_priority_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
+
             return "High"
+
+    # If notice type itself is high priority
 
     if notice_type in [
         "Examination",
         "Result",
         "Admission"
     ]:
+
         return "High"
+
+    # Fallback to PDF
+
+    for keyword in high_priority_keywords:
+
+        if keyword in full_content:
+
+            return "High"
 
     # ------------------------------------------------------
     # Medium priority
@@ -434,14 +497,23 @@ def classify_priority(
     ]
 
     for keyword in medium_priority_keywords:
-        if keyword in content:
+
+        if keyword in subject_content:
+
             return "Medium"
 
     if notice_type in [
         "Academic",
         "Sports"
     ]:
+
         return "Medium"
+
+    for keyword in medium_priority_keywords:
+
+        if keyword in full_content:
+
+            return "Medium"
 
     # ------------------------------------------------------
     # Low priority
@@ -500,31 +572,92 @@ def classify_notice(
 
 if __name__ == "__main__":
 
-    subject = (
-    "B.Tech Computer Science and Engineering - "
-    "Semester Examination Result Notification"
-    )
+    tests = [
 
-    text = """
-    The B.Tech Computer Science and Engineering S3 examination
-    results have been published. Students can check their results
-    through the university portal.
-    """
+        (
+            5425,
+            "Extension of the last date for receipt of applications "
+            "to various statutory and administrative positions "
+            "up to 17.09.2026",
+            """
+            The application form contains references to Ph.D,
+            engineering, examinations and various qualifications.
+            """
+        ),
 
-    result = classify_notice(
-        subject=subject,
-        text=text,
-        notice_id=5432
-    )
+        (
+            5442,
+            "EXAM REGISTRATION - B.Tech S8 (S,FE, Working Professional "
+            "Examination, September 2026 (2019 Scheme)",
+            """
+            Examination registration for B.Tech students.
+            """
+        ),
+
+        (
+            5443,
+            "KTU - Examination - Valuation(UG) - Supplementary Exam "
+            "registration for B.Arch S10 (S) Exam September 2026",
+            """
+            Supplementary examination registration for B.Arch students.
+            """
+        ),
+
+        (
+            5444,
+            "KTU - Examination - (UG) Valuation - Exam registration "
+            "for BHMCT S3",
+            """
+            This PDF also contains unrelated academic terms.
+            """
+        ),
+
+        (
+            5445,
+            "KTU - Examination - Valuation(UG) - Supplementary Exam "
+            "registration for B.Des S8",
+            """
+            B.Des supplementary examination.
+            """
+        ),
+
+        (
+            5447,
+            "KTU - Examination - Valuation(UG) - Supplementary Exam "
+            "registration for BHMCT S8",
+            """
+            BHMCT supplementary examination.
+            """
+        ),
+
+        (
+            5448,
+            "KTU - Examination - (UG) valuation - Exam registration "
+            "for B.Arch S3, B.Arch S5, B.Arch S7 and B.Arch S9",
+            """
+            B.Arch examination registration.
+            """
+        )
+    ]
 
     print()
-    print("========== CLASSIFICATION RESULT ==========")
+    print("========== CLASSIFICATION TEST ==========")
 
-    for key, value in result.items():
-        print(
-            f"{key}: {value}"
+    for notice_id, subject, text in tests:
+
+        result = classify_notice(
+            subject=subject,
+            text=text,
+            notice_id=notice_id
         )
 
-    print(
-        "==========================================="
-    )
+        print()
+        print(f"Notice ID: {notice_id}")
+        print(f"Subject: {subject}")
+        print(f"Type:      {result['notice_type']}")
+        print(f"Programme: {result['programme']}")
+        print(f"Branch:    {result['branch']}")
+        print(f"Priority:  {result['priority']}")
+
+    print()
+    print("==========================================")

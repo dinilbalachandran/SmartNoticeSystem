@@ -42,6 +42,129 @@ def process_notices():
         print(f"Notice ID: {notice_id}")
         print(f"Subject: {subject}")
 
+
+        # ------------------------------------------------------
+        # Notices without PDF attachments
+        # ------------------------------------------------------
+
+        if not attachments:
+
+            print()
+            print("No PDF attachment.")
+            print("Classifying using notice subject only.")
+
+            result = classify_notice(
+                subject=subject,
+                text="",
+                notice_id=notice_id
+            )
+
+            print()
+            print("Classification:")
+            print(f"  Type:      {result['notice_type']}")
+            print(f"  Programme: {result['programme']}")
+            print(f"  Branch:    {result['branch']}")
+            print(f"  Priority:  {result['priority']}")
+
+            faculty_list = route_notice(
+                result["programme"],
+                result["branch"]
+            )
+
+            print()
+            print("Routing:")
+            print(f"  Faculty matched: {len(faculty_list)}")
+
+            notice_db_id = save_classified_notice(
+                title=subject,
+                content="",
+                source_id=source_id,
+                notice_url="https://ktu.edu.in/Menu/announcements",
+                published_date=notice.get("date"),
+                notice_type=result["notice_type"],
+                programme=result["programme"],
+                branch=result["branch"],
+                priority=result["priority"],
+                pdf_path=None
+            )
+
+            print()
+            print(f"Database notice ID: {notice_db_id}")
+
+            if faculty_list:
+
+                print()
+                print("Email Notifications:")
+
+                for faculty in faculty_list:
+
+                    if email_already_sent(
+                        notice_db_id,
+                        faculty["id"]
+                    ):
+                        print(
+                            f"  - Already sent to {faculty['name']}, skipping"
+                        )
+                        continue
+
+                    email_subject = f"[SmartNotice] {subject}"
+
+                    email_body = f"""
+Smart University Notice Classification & Routing System
+
+A new university notice has been detected.
+
+Notice:
+{subject}
+
+Category:
+{result["notice_type"]}
+
+Programme:
+{result["programme"]}
+
+Branch:
+{result["branch"]}
+
+Priority:
+{result["priority"]}
+
+Published Date:
+{notice.get("date")}
+
+This notice has been routed to you by the Smart Notice System.
+"""
+
+                    email_sent = send_notice_email(
+                        notice_id=notice_db_id,
+                        faculty_id=faculty["id"],
+                        recipient_email=faculty["email"],
+                        subject=email_subject,
+                        body=email_body,
+                        attachment_path=None
+                    )
+
+                    if email_sent:
+                        print(
+                            f"  - Sent to {faculty['name']} "
+                            f"({faculty['email']})"
+                        )
+                    else:
+                        print(
+                            f"  - Failed for {faculty['name']} "
+                            f"({faculty['email']})"
+                        )
+
+            else:
+
+                print()
+                print("Email Notifications:")
+                print("  No faculty members matched this notice.")
+
+            classified_count += 1
+
+            continue
+
         for attachment in attachments:
 
             pdf_path = attachment.get("path")
@@ -97,7 +220,8 @@ def process_notices():
                 notice_type=result["notice_type"],
                 programme=result["programme"],
                 branch=result["branch"],
-                priority=result["priority"]
+                priority=result["priority"],
+                pdf_path=pdf_path
             )
 
             print()
@@ -156,7 +280,8 @@ def process_notices():
                         faculty_id=faculty["id"],
                         recipient_email=faculty["email"],
                         subject=email_subject,
-                        body=email_body
+                        body=email_body,
+                        attachment_path=pdf_path
                     )
 
                     if email_sent:
