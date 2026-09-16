@@ -8,7 +8,11 @@ from database.database import (
     get_all_departments,
     add_department,
     update_department,
-    delete_department
+    delete_department,
+    get_all_academic_programmes,
+    add_academic_programme,
+    update_academic_programme,
+    delete_academic_programme
 )
 
 
@@ -23,10 +27,12 @@ department_bp = Blueprint("department", __name__)
 def departments():
 
     department_list = get_all_departments()
+    academic_programmes = get_all_academic_programmes()
 
     return render_template(
         "departments.html",
-        departments=department_list
+        departments=department_list,
+        academic_programmes=academic_programmes
     )
 
 
@@ -91,3 +97,32 @@ def delete_department_route(id):
     return redirect(
         url_for("department.departments")
     )
+
+@department_bp.route("/academic-programme/add", methods=["POST"])
+def add_academic_programme_route():
+    programme = request.form["programme"].strip()
+    branch = request.form["branch"].strip().upper()
+
+    if programme and branch:
+        add_academic_programme(programme, branch)
+
+    return redirect(url_for("department.departments"))
+
+
+@department_bp.route("/academic-programme/update", methods=["POST"])
+def update_academic_programme_route():
+    id = request.form["id"]
+    programme = request.form["programme"].strip()
+    branch = request.form["branch"].strip().upper()
+
+    if programme and branch:
+        update_academic_programme(id, programme, branch)
+
+    return redirect(url_for("department.departments"))
+
+
+@department_bp.route("/academic-programme/delete/<int:id>")
+def delete_academic_programme_route(id):
+    delete_academic_programme(id)
+
+    return redirect(url_for("department.departments"))

@@ -198,6 +198,52 @@ def initialize_database():
         )
     """)
 
+    # -------------------------------------
+    # Faculty Teaching Assignments
+    # -------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS faculty_teaching_assignments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            faculty_id INTEGER NOT NULL,
+            programme TEXT NOT NULL,
+            branch TEXT NOT NULL,
+            FOREIGN KEY (faculty_id)
+                REFERENCES faculty(id)
+                ON DELETE CASCADE,
+            UNIQUE(faculty_id, programme, branch)
+        )
+    """)
+
+    # -------------------------------------
+    # Academic Programme + Branch
+    # -------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS academic_programmes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            programme TEXT NOT NULL,
+            branch TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(programme, branch)
+        )
+    """)
+
+    # # Migrate existing faculty records
+    # cursor.execute("""
+    #     INSERT OR IGNORE INTO faculty_teaching_assignments
+    #     (faculty_id, programme, branch)
+    #     SELECT
+    #         id,
+    #         programme,
+    #         department
+    #     FROM faculty
+    #     WHERE programme IS NOT NULL
+    #       AND programme != ''
+    #       AND department IS NOT NULL
+    #       AND department != ''
+    # """)
+
     conn.commit()
     conn.close()
 
@@ -206,85 +252,99 @@ def initialize_database():
 # -----------------------------
 
 def get_all_faculty(search="", department=""):
-
     conn = get_connection()
 
-    cursor = conn.cursor()
-
     query = """
-        SELECT *
-        FROM faculty
+        SELECT
+            f.id,
+            f.name,
+            f.email,
+            f.department,
+            GROUP_CONCAT(
+                fta.programme || ' ' || fta.branch,
+                ', '
+            ) AS assignments
+        FROM faculty f
+        LEFT JOIN faculty_teaching_assignments fta
+            ON f.id = fta.faculty_id
         WHERE 1=1
     """
 
-    parameters = []
+    params = []
 
-    # Search filter
     if search:
-
         query += """
             AND (
-                name LIKE ?
-                OR programme LIKE ?
-                OR department LIKE ?
-                OR email LIKE ?
+                f.name LIKE ?
+                OR f.email LIKE ?
+                OR f.department LIKE ?
+                OR fta.programme LIKE ?
+                OR fta.branch LIKE ?
             )
         """
-
         search_value = f"%{search}%"
-
-        parameters.extend([
+        params.extend([
+            search_value,
             search_value,
             search_value,
             search_value,
             search_value
         ])
 
-    # Department filter
     if department:
-
-        query += """
-            AND department = ?
-        """
-
-        parameters.append(department)
+        query += " AND f.department = ?"
+        params.append(department)
 
     query += """
-        ORDER BY id DESC
+        GROUP BY f.id
+        ORDER BY f.name
     """
 
-    cursor.execute(query, parameters)
-
-    faculty = cursor.fetchall()
-
+    faculty = conn.execute(query, params).fetchall()
     conn.close()
 
-    return faculty
+    return [dict(row) for row in faculty]
 
 
-def add_faculty(
-    name,
-    department,
-    email,
-    programme="Unknown"
-):
-
+def add_faculty(name, department, email, programme="Unknown", branch=None, assignments=None):
     conn = get_connection()
 
-    conn.execute("""
-        INSERT INTO faculty
-        (name, programme, department, email)
+    cursor = conn.execute("""
+        INSERT INTO faculty (name, programme, department, email)
         VALUES (?, ?, ?, ?)
-    """, (
-        name,
-        programme,
-        department,
-        email
-    ))
+    """, (name, programme, department, email))
+
+    faculty_id = cursor.lastrowid
+
+    # New multiple Programme + Branch assignments
+    if assignments:
+        for assignment in assignments:
+            assignment_programme = assignment.get("programme")
+            assignment_branch = assignment.get("branch")
+
+            if assignment_programme and assignment_branch:
+                conn.execute("""
+                    INSERT OR IGNORE INTO faculty_teaching_assignments
+                    (faculty_id, programme, branch)
+                    VALUES (?, ?, ?)
+                """, (
+                    faculty_id,
+                    assignment_programme,
+                    assignment_branch
+                ))
+
+    # Backward compatibility for old single assignment
+    elif programme and branch:
+        conn.execute("""
+            INSERT OR IGNORE INTO faculty_teaching_assignments
+            (faculty_id, programme, branch)
+            VALUES (?, ?, ?)
+        """, (faculty_id, programme, branch))
 
     conn.commit()
-
     conn.close()
+
+    return faculty_id
 
 def delete_faculty(faculty_id):
 
@@ -304,47 +364,56 @@ def update_faculty(
     name,
     department,
     email,
-    programme=None
+    assignments=None
 ):
-
     conn = get_connection()
 
-    if programme is None:
+    # Update basic faculty information
+    conn.execute("""
+        UPDATE faculty
+        SET
+            name = ?,
+            department = ?,
+            email = ?
+        WHERE id = ?
+    """, (
+        name,
+        department,
+        email,
+        id
+    ))
 
+
+    # Update teaching assignments
+    if assignments is not None:
+
+        # Remove old assignments
         conn.execute("""
-            UPDATE faculty
-            SET
-                name = ?,
-                department = ?,
-                email = ?
-            WHERE id = ?
-        """, (
-            name,
-            department,
-            email,
-            id
-        ))
+            DELETE FROM faculty_teaching_assignments
+            WHERE faculty_id = ?
+        """, (id,))
 
-    else:
 
-        conn.execute("""
-            UPDATE faculty
-            SET
-                name = ?,
-                programme = ?,
-                department = ?,
-                email = ?
-            WHERE id = ?
-        """, (
-            name,
-            programme,
-            department,
-            email,
-            id
-        ))
+        # Add new assignments
+        for assignment in assignments:
+
+            programme = assignment.get("programme")
+            branch = assignment.get("branch")
+
+            if programme and branch:
+
+                conn.execute("""
+                    INSERT OR IGNORE INTO faculty_teaching_assignments
+                    (faculty_id, programme, branch)
+                    VALUES (?, ?, ?)
+                """, (
+                    id,
+                    programme,
+                    branch
+                ))
+
 
     conn.commit()
-
     conn.close()
 
 # -------------------------------------
@@ -418,6 +487,70 @@ def delete_department(id):
 
     conn.commit()
 
+    conn.close()
+
+# -------------------------------------
+# Academic Programme + Branch CRUD
+# -------------------------------------
+
+def get_all_academic_programmes():
+    conn = get_connection()
+
+    programmes = conn.execute("""
+        SELECT *
+        FROM academic_programmes
+        ORDER BY programme, branch
+    """).fetchall()
+
+    conn.close()
+
+    return programmes
+
+
+def add_academic_programme(programme, branch):
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO academic_programmes
+        (programme, branch)
+        VALUES (?, ?)
+    """, (
+        programme,
+        branch
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def update_academic_programme(id, programme, branch):
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE academic_programmes
+        SET
+            programme = ?,
+            branch = ?
+        WHERE id = ?
+    """, (
+        programme,
+        branch,
+        id
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_academic_programme(id):
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM academic_programmes WHERE id = ?",
+        (id,)
+    )
+
+    conn.commit()
     conn.close()
 
 # -------------------------------------

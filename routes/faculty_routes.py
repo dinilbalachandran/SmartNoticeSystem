@@ -9,7 +9,8 @@ from database.database import (
     add_faculty,
     delete_faculty,
     update_faculty,
-    get_all_departments
+    get_all_departments,
+    get_all_academic_programmes
 )
 
 
@@ -20,7 +21,6 @@ faculty_bp = Blueprint("faculty", __name__)
 # Faculty Page
 # =========================
 
-@faculty_bp.route("/faculty")
 @faculty_bp.route("/faculty")
 def faculty():
 
@@ -34,11 +34,13 @@ def faculty():
     )
 
     departments = get_all_departments()
+    academic_programmes = get_all_academic_programmes()
 
     return render_template(
         "faculty.html",
         faculty_list=faculty_list,
         departments=departments,
+        academic_programmes=academic_programmes,
         search=search,
         department=department
     )
@@ -49,20 +51,40 @@ def faculty():
 # =========================
 
 @faculty_bp.route("/faculty/add", methods=["POST"])
-def add_faculty_route():
-    name = request.form["name"]
-    programme = request.form["programme"]
-    department = request.form["department"]
-    email = request.form["email"]
+def faculty_add():
+    name = request.form.get("name")
+    department = request.form.get("department")
+    email = request.form.get("email")
+
+    # Get multiple Programme + Branch assignments
+    programmes = request.form.getlist("assignment_programme")
+    branches = request.form.getlist("assignment_branch")
+
+    assignments = []
+
+    for programme, branch in zip(programmes, branches):
+        if programme and branch:
+            assignments.append({
+                "programme": programme,
+                "branch": branch
+            })
+
+    # Use the first assignment as the old faculty.programme value
+    first_programme = (
+        assignments[0]["programme"]
+        if assignments
+        else "Unknown"
+    )
 
     add_faculty(
         name,
         department,
         email,
-        programme
+        first_programme,
+        assignments=assignments
     )
 
-    return redirect(url_for("faculty.faculty"))
+    return redirect(url_for("faculty.faculty_page"))
 
 
 # =========================
@@ -85,18 +107,33 @@ def delete_faculty_route(id):
 
 @faculty_bp.route("/faculty/update", methods=["POST"])
 def update_faculty_route():
-    id = request.form["id"]
-    name = request.form["name"]
-    programme = request.form["programme"]
-    department = request.form["department"]
-    email = request.form["email"]
+
+    faculty_id = request.form["id"]
+    name = request.form["name"].strip()
+    department = request.form["department"].strip()
+    email = request.form["email"].strip()
+
+    programmes = request.form.getlist("assignment_programme")
+    branches = request.form.getlist("assignment_branch")
+
+    assignments = []
+
+    for programme, branch in zip(programmes, branches):
+
+        if programme and branch:
+
+            assignments.append({
+                "programme": programme,
+                "branch": branch
+            })
+
 
     update_faculty(
-        id,
+        faculty_id,
         name,
         department,
         email,
-        programme
+        assignments=assignments
     )
 
     return redirect(url_for("faculty.faculty"))

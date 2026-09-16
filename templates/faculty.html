@@ -147,7 +147,7 @@ Faculty Management
 
                     <th>Name</th>
 
-                    <th>Programme</th>
+                    <th>Teaching Assignments</th>
 
                     <th>Department</th>
 
@@ -171,7 +171,25 @@ Faculty Management
                     </td>
 
                     <td>
-                        {{ faculty.programme }}
+
+                        {% if faculty.assignments %}
+
+                            {% for assignment in faculty.assignments.split(', ') %}
+
+                                <span class="badge bg-primary me-1 mb-1">
+                                    {{ assignment }}
+                                </span>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                No assignments
+                            </span>
+
+                        {% endif %}
+
                     </td>
 
                     <td>
@@ -209,7 +227,7 @@ Faculty Management
 
 
                 <!-- =========================
-                     Edit Faculty Modal
+                    Edit Faculty Modal
                 ========================= -->
 
                 <div class="modal fade" id="editFaculty{{ faculty.id }}">
@@ -218,16 +236,21 @@ Faculty Management
 
                         <div class="modal-content bg-dark text-white">
 
-                            <form action="/faculty/update" method="POST">
+                            <form
+                                action="/faculty/update"
+                                method="POST"
+                                id="editFacultyForm{{ faculty.id }}"
+                            >
 
                                 <input type="hidden" name="id" value="{{ faculty.id }}">
-
 
                                 <div class="modal-header">
 
                                     <h5>Edit Faculty</h5>
 
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                                    <button type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal">
                                     </button>
 
                                 </div>
@@ -235,52 +258,36 @@ Faculty Management
 
                                 <div class="modal-body">
 
-                                    <input class="form-control mb-3" name="name" value="{{ faculty.name }}" required>
+                                    <!-- Faculty Name -->
 
-                                    <select class="form-select mb-3" name="programme" required>
+                                    <input
+                                        class="form-control mb-3"
+                                        name="name"
+                                        value="{{ faculty.name }}"
+                                        placeholder="Faculty Name"
+                                        required
+                                    >
 
-                                        <option value="">
-                                            Select Programme
-                                        </option>
 
-                                        <option value="B.Tech"
-                                            {% if faculty.programme == "B.Tech" %}selected{% endif %}>
-                                            B.Tech
-                                        </option>
+                                    <!-- Email -->
 
-                                        <option value="M.Tech"
-                                            {% if faculty.programme == "M.Tech" %}selected{% endif %}>
-                                            M.Tech
-                                        </option>
+                                    <input
+                                        class="form-control mb-3"
+                                        name="email"
+                                        type="email"
+                                        value="{{ faculty.email }}"
+                                        placeholder="Email"
+                                        required
+                                    >
 
-                                        <option value="MCA"
-                                            {% if faculty.programme == "MCA" %}selected{% endif %}>
-                                            MCA
-                                        </option>
 
-                                        <option value="B.Des"
-                                            {% if faculty.programme == "B.Des" %}selected{% endif %}>
-                                            B.Des
-                                        </option>
+                                    <!-- Primary Department -->
 
-                                        <option value="B.Arch"
-                                            {% if faculty.programme == "B.Arch" %}selected{% endif %}>
-                                            B.Arch
-                                        </option>
-
-                                        <option value="B.HMCT"
-                                            {% if faculty.programme == "B.HMCT" %}selected{% endif %}>
-                                            B.HMCT
-                                        </option>
-
-                                        <option value="PhD"
-                                            {% if faculty.programme == "PhD" %}selected{% endif %}>
-                                            PhD
-                                        </option>
-
-                                    </select>
-
-                                    <select class="form-select mb-3" name="department" required>
+                                    <select
+                                        class="form-select mb-3"
+                                        name="department"
+                                        required
+                                    >
 
                                         <option value="">
                                             Select Department
@@ -288,12 +295,11 @@ Faculty Management
 
                                         {% for dept in departments %}
 
-                                        <option value="{{ dept.short_form }}" {% if faculty.department==dept.short_form
-                                            %}selected{% endif %}>
-
-                                            {{ dept.short_form }} -
-                                            {{ dept.department_name }}
-
+                                        <option
+                                            value="{{ dept.short_form }}"
+                                            {% if faculty.department == dept.short_form %}selected{% endif %}
+                                        >
+                                            {{ dept.short_form }} - {{ dept.department_name }}
                                         </option>
 
                                         {% endfor %}
@@ -301,23 +307,55 @@ Faculty Management
                                     </select>
 
 
-                                    <input class="form-control" name="email" value="{{ faculty.email }}" required>
+                                    <hr>
+
+
+                                    <!-- Teaching Assignments -->
+
+                                    <h6 class="mb-3">
+                                        Teaching Assignments
+                                    </h6>
+
+
+                                    <div
+                                        class="edit-assignment-container"
+                                        id="edit-assignment-container-{{ faculty.id }}"
+                                        data-assignments="{{ faculty.assignments or '' }}"
+                                    >
+
+                                        <!-- Assignment rows will be created by JavaScript -->
+
+                                    </div>
+
+
+                                    <!-- Add Another Assignment -->
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary mt-2 add-edit-assignment"
+                                        data-faculty-id="{{ faculty.id }}"
+                                    >
+                                        + Add Another Assignment
+                                    </button>
 
                                 </div>
 
 
                                 <div class="modal-footer">
 
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
                                         Cancel
-
                                     </button>
 
-                                    <button type="submit" class="btn btn-primary">
-
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary"
+                                    >
                                         Update
-
                                     </button>
 
                                 </div>
@@ -385,43 +423,131 @@ Faculty Management
 
                 <div class="modal-body">
 
-                    <input class="form-control mb-3" name="name" placeholder="Faculty Name" required>
+                    <!-- Faculty Name -->
+                    <input
+                        class="form-control mb-3"
+                        name="name"
+                        placeholder="Faculty Name"
+                        required
+                    >
 
-                    <select class="form-select mb-3" name="programme" required>
-                        <option value="">
-                            Select Programme
-                        </option>
+                    <!-- Email -->
+                    <input
+                        class="form-control mb-3"
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        required
+                    >
 
-                        <option value="B.Tech">B.Tech</option>
-                        <option value="M.Tech">M.Tech</option>
-                        <option value="MCA">MCA</option>
-                        <option value="B.Des">B.Des</option>
-                        <option value="B.Arch">B.Arch</option>
-                        <option value="B.HMCT">B.HMCT</option>
-                        <option value="PhD">PhD</option>
-                    </select>
-
-                    <select class="form-select mb-3" name="department" required>
-
-                        <option value="">
-                            Select Department
-                        </option>
+                    <!-- Primary Department -->
+                    <select
+                        class="form-select mb-3"
+                        name="department"
+                        required
+                    >
+                        <option value="">Select Department</option>
 
                         {% for dept in departments %}
-
                         <option value="{{ dept.short_form }}">
-
-                            {{ dept.short_form }} -
-                            {{ dept.department_name }}
-
+                            {{ dept.short_form }} - {{ dept.department_name }}
                         </option>
-
                         {% endfor %}
-
                     </select>
 
+                    <hr>
 
-                    <input class="form-control" name="email" placeholder="Email" required>
+                    <h6 class="mb-3">Teaching Assignments</h6>
+
+                    <div
+                        id="academic-programme-data"
+                        data-programmes='{{ academic_programmes | map(attribute="programme") | list | tojson }}'
+                        data-branches='{{ academic_programmes | map(attribute="branch") | list | tojson }}'
+                        style="display: none;">
+                    </div>
+
+                    <div id="assignment-container">
+
+                        <!-- First Assignment -->
+                        <div class="assignment-row row g-2 mb-2">
+
+                            <div class="col-md-5">
+
+                                <select
+                                    class="form-select"
+                                    name="assignment_programme"
+                                    required>
+
+                                    <option value="">
+                                        Select Programme
+                                    </option>
+
+                                    {% for item in academic_programmes %}
+
+                                    <option value="{{ item.programme }}">
+                                        {{ item.programme }}
+                                    </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-5">
+
+                                <select
+                                    class="form-select"
+                                    name="assignment_branch"
+                                    required>
+
+                                    <option value="">
+                                        Select Branch
+                                    </option>
+
+                                    {% for item in academic_programmes %}
+
+                                    <option
+                                        value="{{ item.branch }}"
+                                        data-programme="{{ item.programme }}">
+
+                                        {{ item.branch }}
+
+                                    </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-2">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-danger w-100 remove-assignment"
+                                    style="display:none;">
+
+                                    ×
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Add Another Assignment -->
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary mt-2"
+                        id="add-assignment"
+                    >
+                        + Add Another Assignment
+                    </button>
 
                 </div>
 
@@ -449,5 +575,430 @@ Faculty Management
     </div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const container = document.getElementById("assignment-container");
+    const addButton = document.getElementById("add-assignment");
+
+    // Get academic programme + branch data safely from HTML
+    const academicData = document.getElementById(
+        "academic-programme-data"
+    );
+
+    let academicProgrammes = [];
+
+    if (academicData) {
+
+        const programmes = JSON.parse(
+            academicData.getAttribute("data-programmes")
+        );
+
+        const branches = JSON.parse(
+            academicData.getAttribute("data-branches")
+        );
+
+        academicProgrammes = programmes.map(function (programme, index) {
+            return {
+                programme: programme,
+                branch: branches[index]
+            };
+        });
+    }
+
+    function updateBranchOptions(row) {
+
+        const programme = row.querySelector(
+            'select[name="assignment_programme"]'
+        );
+
+        const branch = row.querySelector(
+            'select[name="assignment_branch"]'
+        );
+
+        const selectedProgramme = programme.value;
+
+        branch.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+
+        defaultOption.value = "";
+        defaultOption.textContent = "Select Branch";
+
+        branch.appendChild(defaultOption);
+
+
+        academicProgrammes.forEach(function (item) {
+
+            if (item.programme === selectedProgramme) {
+
+                const option = document.createElement("option");
+
+                option.value = item.branch;
+                option.textContent = item.branch;
+
+                branch.appendChild(option);
+            }
+
+        });
+    }
+
+    // Programme changed
+    container.addEventListener("change", function (event) {
+
+        if (event.target.name === "assignment_programme") {
+
+            const row = event.target.closest(".assignment-row");
+
+            updateBranchOptions(row);
+        }
+    });
+
+    // Add another assignment
+    addButton.addEventListener("click", function () {
+
+        const firstRow =
+            container.querySelector(".assignment-row");
+
+        const newRow = firstRow.cloneNode(true);
+
+        const programme =
+            newRow.querySelector(
+                'select[name="assignment_programme"]'
+            );
+
+        const branch =
+            newRow.querySelector(
+                'select[name="assignment_branch"]'
+            );
+
+        programme.selectedIndex = 0;
+
+        branch.innerHTML =
+            '<option value="">Select Branch</option>';
+
+        const removeButton =
+            newRow.querySelector(".remove-assignment");
+
+        removeButton.style.display = "block";
+
+        container.appendChild(newRow);
+    });
+
+    // Remove assignment
+    container.addEventListener("click", function (event) {
+
+        if (
+            event.target.classList.contains("remove-assignment")
+        ) {
+
+            const rows =
+                container.querySelectorAll(".assignment-row");
+
+            if (rows.length > 1) {
+
+                event.target
+                    .closest(".assignment-row")
+                    .remove();
+            }
+        }
+    });
+
+});
+</script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const academicData = document.getElementById(
+        "academic-programme-data"
+    );
+
+    let academicProgrammes = [];
+
+    if (academicData) {
+
+        const programmes = JSON.parse(
+            academicData.getAttribute("data-programmes")
+        );
+
+        const branches = JSON.parse(
+            academicData.getAttribute("data-branches")
+        );
+
+        academicProgrammes = programmes.map(function (programme, index) {
+
+            return {
+                programme: programme,
+                branch: branches[index]
+            };
+
+        });
+
+    }
+
+
+    function createAssignmentRow(container, programmeValue, branchValue) {
+
+        const row = document.createElement("div");
+
+        row.className = "assignment-row row g-2 mb-2";
+
+
+        // Programme
+
+        const programmeCol = document.createElement("div");
+
+        programmeCol.className = "col-md-5";
+
+
+        const programmeSelect = document.createElement("select");
+        const facultyId = container.id.replace(
+            "edit-assignment-container-",
+            ""
+        );
+
+        programmeSelect.setAttribute(
+            "form",
+            "editFacultyForm" + facultyId
+        );
+
+        programmeSelect.className = "form-select";
+
+        programmeSelect.name = "assignment_programme";
+
+        programmeSelect.required = true;
+
+
+        const programmeDefault = document.createElement("option");
+
+        programmeDefault.value = "";
+
+        programmeDefault.textContent = "Select Programme";
+
+        programmeSelect.appendChild(programmeDefault);
+
+
+        const uniqueProgrammes = [
+            ...new Set(
+                academicProgrammes.map(function (item) {
+                    return item.programme;
+                })
+            )
+        ];
+
+
+        uniqueProgrammes.forEach(function (programme) {
+
+            const option = document.createElement("option");
+
+            option.value = programme;
+
+            option.textContent = programme;
+
+            if (programme === programmeValue) {
+                option.selected = true;
+            }
+
+            programmeSelect.appendChild(option);
+
+        });
+
+
+        programmeCol.appendChild(programmeSelect);
+
+
+        // Branch
+
+        const branchCol = document.createElement("div");
+
+        branchCol.className = "col-md-5";
+
+
+        const branchSelect = document.createElement("select");
+        branchSelect.setAttribute(
+            "form",
+            "editFacultyForm" + facultyId
+        );
+
+        branchSelect.className = "form-select";
+
+        branchSelect.name = "assignment_branch";
+
+        branchSelect.required = true;
+
+
+        function loadBranches() {
+
+            branchSelect.innerHTML = "";
+
+            const defaultOption = document.createElement("option");
+
+            defaultOption.value = "";
+
+            defaultOption.textContent = "Select Branch";
+
+            branchSelect.appendChild(defaultOption);
+
+
+            academicProgrammes.forEach(function (item) {
+
+                if (item.programme === programmeSelect.value) {
+
+                    const option = document.createElement("option");
+
+                    option.value = item.branch;
+
+                    option.textContent = item.branch;
+
+                    if (item.branch === branchValue) {
+                        option.selected = true;
+                    }
+
+                    branchSelect.appendChild(option);
+
+                }
+
+            });
+
+        }
+
+
+        programmeSelect.addEventListener("change", function () {
+
+            branchValue = "";
+
+            loadBranches();
+
+        });
+
+
+        loadBranches();
+
+
+        branchCol.appendChild(branchSelect);
+
+
+        // Remove button
+
+        const removeCol = document.createElement("div");
+
+        removeCol.className = "col-md-2";
+
+
+        const removeButton = document.createElement("button");
+
+        removeButton.type = "button";
+
+        removeButton.className =
+            "btn btn-danger w-100 remove-edit-assignment";
+
+        removeButton.textContent = "×";
+
+
+        removeButton.addEventListener("click", function () {
+
+            const rows =
+                container.querySelectorAll(".assignment-row");
+
+            if (rows.length > 1) {
+                row.remove();
+            }
+
+        });
+
+
+        removeCol.appendChild(removeButton);
+
+
+        row.appendChild(programmeCol);
+
+        row.appendChild(branchCol);
+
+        row.appendChild(removeCol);
+
+
+        container.appendChild(row);
+
+    }
+
+
+    // Load existing assignments
+
+    document.querySelectorAll(
+        ".edit-assignment-container"
+    ).forEach(function (container) {
+
+        const assignments =
+            container.getAttribute("data-assignments");
+
+
+        if (assignments) {
+
+            assignments
+                .split(", ")
+                .forEach(function (assignment) {
+
+                    const parts = assignment.split(" ");
+
+                    const programme = parts.shift();
+
+                    const branch = parts.join(" ");
+
+
+                    createAssignmentRow(
+                        container,
+                        programme,
+                        branch
+                    );
+
+                });
+
+        } else {
+
+            createAssignmentRow(
+                container,
+                "",
+                ""
+            );
+
+        }
+
+    });
+
+
+    // Add another assignment
+
+    document.querySelectorAll(
+        ".add-edit-assignment"
+    ).forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const facultyId =
+                button.getAttribute("data-faculty-id");
+
+
+            const container =
+                document.getElementById(
+                    "edit-assignment-container-" + facultyId
+                );
+
+
+            createAssignmentRow(
+                container,
+                "",
+                ""
+            );
+
+        });
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

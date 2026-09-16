@@ -2,25 +2,18 @@ from database.database import get_connection
 
 
 def route_notice(programme, branch):
-    """
-    Find faculty members who should receive a classified notice.
-
-    Routing rules:
-    - Specific programme + specific branch
-      Example: B.Tech + CSE
-    - Specific programme + ALL branches
-      Example: B.Tech + ALL
-    - Programme-specific courses such as MCA
-      use the programme with ALL branch.
-    """
 
     conn = get_connection()
 
-    # Do not route notices when programme is unknown
+    # ------------------------------------------------------
+    # Unknown programme → send to all faculty
+    # ------------------------------------------------------
     if not programme or programme == "Unknown":
+
         faculty = conn.execute("""
-            SELECT * FROM faculty
-            ORDER BY name
+            SELECT DISTINCT f.*
+            FROM faculty f
+            ORDER BY f.name
         """).fetchall()
 
         conn.close()
@@ -28,29 +21,38 @@ def route_notice(programme, branch):
         return [dict(row) for row in faculty]
 
     # ------------------------------------------------------
-    # Specific branch
-    # Example: B.Tech + CSE
+    # Specific branch → exact Programme + Branch match
     # ------------------------------------------------------
     if branch != "ALL":
+
         faculty = conn.execute("""
-            SELECT *
-            FROM faculty
-            WHERE programme = ?
-              AND department = ?
-            ORDER BY name
-        """, (programme, branch)).fetchall()
+            SELECT DISTINCT f.*
+            FROM faculty f
+            INNER JOIN faculty_teaching_assignments fta
+                ON f.id = fta.faculty_id
+            WHERE fta.programme = ?
+              AND fta.branch = ?
+            ORDER BY f.name
+        """, (
+            programme,
+            branch
+        )).fetchall()
 
     # ------------------------------------------------------
-    # All branches of a programme
-    # Example: B.Tech + ALL
+    # ALL branches → all faculty teaching that programme
     # ------------------------------------------------------
     else:
+
         faculty = conn.execute("""
-            SELECT *
-            FROM faculty
-            WHERE programme = ?
-            ORDER BY name
-        """, (programme,)).fetchall()
+            SELECT DISTINCT f.*
+            FROM faculty f
+            INNER JOIN faculty_teaching_assignments fta
+                ON f.id = fta.faculty_id
+            WHERE fta.programme = ?
+            ORDER BY f.name
+        """, (
+            programme,
+        )).fetchall()
 
     conn.close()
 
