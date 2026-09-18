@@ -151,21 +151,57 @@
 
                     </div>
 
-                    <div class="profile">
+                    <div class="dropdown">
 
-                        <div class="avatar">
+                        <div
+                            class="profile"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            style="cursor: pointer;">
 
-                            A
+                            <div class="avatar">
+                                A
+                            </div>
+
+                            <div>
+                                <strong>Administrator</strong><br>
+                                <small>System Admin</small>
+                            </div>
+
+                            <i class="bi bi-chevron-down ms-2"></i>
 
                         </div>
 
-                        <div>
 
-                            <strong>Administrator</strong><br>
+                        <ul class="dropdown-menu dropdown-menu-end">
 
-                            <small>System Admin</small>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/settings">
 
-                        </div>
+                                    <i class="bi bi-gear me-2"></i>
+                                    Settings
+
+                                </a>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <a
+                                    class="dropdown-item text-danger"
+                                    href="/logout">
+
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Logout
+
+                                </a>
+                            </li>
+
+                        </ul>
 
                     </div>
 

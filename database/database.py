@@ -40,6 +40,19 @@ def initialize_database():
             ADD COLUMN programme TEXT NOT NULL DEFAULT 'Unknown'
         """)
 
+    # -------------------------------------
+    # Admin Account
+    # -------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS admin_account (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS departments (
 
@@ -1045,6 +1058,76 @@ def update_source_last_checked(source_id):
         SET last_checked = CURRENT_TIMESTAMP
         WHERE id = ?
     """, (source_id,))
+
+    conn.commit()
+    conn.close()
+
+# -------------------------------------
+# Admin Account Functions
+# -------------------------------------
+
+def create_admin(email, password_hash):
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO admin_account (email, password_hash)
+        VALUES (?, ?)
+    """, (
+        email,
+        password_hash
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_admin_by_email(email):
+
+    conn = get_connection()
+
+    admin = conn.execute("""
+        SELECT *
+        FROM admin_account
+        WHERE email = ?
+    """, (
+        email,
+    )).fetchone()
+
+    conn.close()
+
+    return dict(admin) if admin else None
+
+
+def update_admin_email(admin_id, email):
+
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE admin_account
+        SET email = ?
+        WHERE id = ?
+    """, (
+        email,
+        admin_id
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def update_admin_password(admin_id, password_hash):
+
+    conn = get_connection()
+
+    conn.execute("""
+        UPDATE admin_account
+        SET password_hash = ?
+        WHERE id = ?
+    """, (
+        password_hash,
+        admin_id
+    ))
 
     conn.commit()
     conn.close()

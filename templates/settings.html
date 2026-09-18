@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Settings
+Settings - Smart Notice
 {% endblock %}
 
 {% block page_title %}
@@ -10,6 +10,466 @@ Settings
 
 {% block content %}
 
-<h2>Settings</h2>
+<style>
+
+    /* ================================
+       SETTINGS - SMART NOTICE THEME
+    ================================= */
+
+    .settings-card {
+        background: #111827 !important;
+        border: 1px solid #243247 !important;
+        border-radius: 14px !important;
+        color: #f8fafc !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-card::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        border-radius: 50%;
+        background: #1e293b;
+        opacity: 0.55;
+        top: -120px;
+        right: -80px;
+        pointer-events: none;
+    }
+
+    .settings-card .card-body {
+        position: relative;
+        z-index: 2;
+    }
+
+    .settings-card h5,
+    .settings-card h6 {
+        color: #f8fafc !important;
+        font-weight: 600;
+    }
+
+    .settings-card p,
+    .settings-card small {
+        color: #94a3b8 !important;
+    }
+
+    .settings-section {
+        background: #151f32 !important;
+        border: 1px solid #2a3950 !important;
+        border-radius: 10px !important;
+        color: #f8fafc !important;
+    }
+
+    .settings-card .form-label {
+        color: #cbd5e1 !important;
+        font-weight: 500;
+    }
+
+    .settings-card .form-control {
+        background: #1e293b !important;
+        border: 1px solid #475569 !important;
+        color: #f8fafc !important;
+        border-radius: 6px;
+    }
+
+    .settings-card .form-control::placeholder {
+        color: #64748b !important;
+    }
+
+    .settings-card .form-control:focus {
+        background: #1e293b !important;
+        color: #f8fafc !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+    }
+
+    .settings-card .text-primary {
+        color: #3b82f6 !important;
+    }
+
+    .settings-card .btn-primary {
+        background: #2563eb !important;
+        border-color: #2563eb !important;
+    }
+
+    .settings-card .btn-primary:hover {
+        background: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+    }
+
+    .settings-card .fw-semibold {
+        color: #f1f5f9 !important;
+    }
+
+</style>
+
+<div class="row g-4">
+
+    <!-- Admin Account -->
+
+    <div class="col-lg-8">
+
+        <div class="card settings-card shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h5 class="mb-1">
+                    Admin Account
+                </h5>
+
+                <p class="text-muted mb-4">
+                    Manage your administrator account settings.
+                </p>
+
+
+                <!-- Email Settings -->
+
+                <div class="settings-section p-4 mb-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <i class="bi bi-envelope fs-4 me-3 text-primary"></i>
+
+                        <div>
+
+                            <h6 class="mb-1">
+                                Email Settings
+                            </h6>
+
+                            <small class="text-muted">
+                                Update the administrator email address.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <form method="POST" action="/settings/email">
+
+                        <label class="form-label">
+                            Admin Email
+                        </label>
+
+                        <div class="input-group">
+
+                            <input
+                                type="email"
+                                name="email"
+                                class="form-control"
+                                value="{{ admin.email }}"
+                                placeholder="Enter admin email"
+                                required
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary">
+
+                                Update Email
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+                <!-- Password Settings -->
+
+                <div class="settings-section p-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <i class="bi bi-lock fs-4 me-3 text-primary"></i>
+
+                        <div>
+
+                            <h6 class="mb-1">
+                                Password Settings
+                            </h6>
+
+                            <small class="text-muted">
+                                Change the administrator password.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <form method="POST" action="/settings/password">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Current Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="current_password"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                New Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="new_password"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Confirm New Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            Change Password
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- System Information -->
+
+    <div class="col-lg-4">
+
+        <div class="card settings-card shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h5 class="mb-1">
+                    System Information
+                </h5>
+
+                <p class="text-muted mb-4">
+                    Smart Notice system details.
+                </p>
+
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        System Name
+                    </small>
+
+                    <div class="fw-semibold">
+                        Smart Notice
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        System Type
+                    </small>
+
+                    <div class="fw-semibold">
+                        University Notice Classification & Routing System
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        Version
+                    </small>
+
+                    <div class="fw-semibold">
+                        1.0
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <small class="text-muted">
+                        Copyright
+                    </small>
+
+                    <div class="fw-semibold">
+                        © 2026 Smart Notice System
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}
+
+<!-- <style>
+
+    /* ================================
+       SETTINGS - SMART NOTICE THEME
+    ================================= */
+
+    .settings-card {
+        background: #111827;
+        border: 1px solid #243247;
+        border-radius: 14px;
+        color: #f8fafc;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-card::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        border-radius: 50%;
+        background: #1e293b;
+        opacity: 0.55;
+        top: -120px;
+        right: -80px;
+        pointer-events: none;
+    }
+
+    .settings-card .card-body {
+        position: relative;
+        z-index: 2;
+    }
+
+    .settings-card h5 {
+        color: #f8fafc;
+        font-weight: 600;
+    }
+
+    .settings-card h6 {
+        color: #f8fafc;
+        font-weight: 500;
+    }
+
+    .settings-card p,
+    .settings-card small {
+        color: #94a3b8 !important;
+    }
+
+
+    /* Settings sections */
+
+    .settings-section {
+        background: #151f32;
+        border: 1px solid #2a3950 !important;
+        border-radius: 10px !important;
+    }
+
+
+    /* Labels */
+
+    .settings-card .form-label {
+        color: #cbd5e1;
+        font-weight: 500;
+    }
+
+
+    /* Inputs */
+
+    .settings-card .form-control {
+        background: #1e293b;
+        border: 1px solid #475569;
+        color: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .settings-card .form-control::placeholder {
+        color: #64748b;
+    }
+
+    .settings-card .form-control:focus {
+        background: #1e293b;
+        color: #f8fafc;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+
+    /* Icons */
+
+    .settings-card .text-primary {
+        color: #3b82f6 !important;
+    }
+
+
+    /* Buttons */
+
+    .settings-card .btn-primary {
+        background: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .settings-card .btn-primary:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+
+    /* System information */
+
+    .settings-card .fw-semibold {
+        color: #f1f5f9;
+    }
+
+
+    /* Mobile */
+
+    @media (max-width: 768px) {
+
+        .settings-card {
+            margin-bottom: 15px;
+        }
+
+    }
+
+</style> -->

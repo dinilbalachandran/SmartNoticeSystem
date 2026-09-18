@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session, redirect, url_for, request
 from database.database import initialize_database
 
 from routes.dashboard_routes import dashboard_bp
@@ -9,6 +9,23 @@ from routes.settings_routes import settings_bp
 from routes.department_routes import department_bp
 
 app = Flask(__name__)
+
+app.secret_key = "smartnotice-admin-secret-key"
+
+@app.before_request
+def require_admin_login():
+
+    allowed_endpoints = {
+        "settings.login",
+        "static"
+    }
+
+    if request.endpoint in allowed_endpoints:
+        return
+
+    if "admin_id" not in session:
+        return redirect(url_for("settings.login"))
+
 initialize_database()
 
 app.register_blueprint(dashboard_bp)
