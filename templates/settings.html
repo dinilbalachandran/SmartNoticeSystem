@@ -104,6 +104,35 @@ Settings
 
 </style>
 
+{% if success %}
+
+<div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+
+    <i class="bi bi-check-circle-fill me-2"></i>
+
+    <div>
+        {{ success }}
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% if error %}
+
+<div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+
+    <i class="bi bi-exclamation-circle-fill me-2"></i>
+
+    <div>
+        {{ error }}
+    </div>
+
+</div>
+
+{% endif %}
+
 <div class="row g-4">
 
     <!-- Admin Account -->

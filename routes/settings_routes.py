@@ -55,9 +55,14 @@ def settings():
         session["admin_email"]
     )
 
+    success = session.pop("settings_success", None)
+    error = session.pop("settings_error", None)
+
     return render_template(
         "settings.html",
-        admin=admin
+        admin=admin,
+        success=success,
+        error=error
     )
 
 @settings_bp.route("/settings/email", methods=["POST"])
@@ -69,16 +74,24 @@ def update_email():
     new_email = request.form["email"].strip()
 
     if not new_email:
+        session["settings_error"] = "Email address cannot be empty."
         return redirect(url_for("settings.settings"))
 
     from database.database import update_admin_email
 
-    update_admin_email(
-        session["admin_id"],
-        new_email
-    )
+    try:
 
-    session["admin_email"] = new_email
+        update_admin_email(
+            session["admin_id"],
+            new_email
+        )
+
+        session["admin_email"] = new_email
+        session["settings_success"] = "Email updated successfully."
+
+    except Exception:
+
+        session["settings_error"] = "This email address is already in use."
 
     return redirect(url_for("settings.settings"))
 
@@ -102,25 +115,41 @@ def update_password():
     )
 
     if not admin:
+
+        session["settings_error"] = "Admin account not found."
+
         return redirect(url_for("settings.settings"))
 
     # Check current password
+
     if not check_password_hash(
         admin["password_hash"],
         current_password
     ):
+
+        session["settings_error"] = "Current password is incorrect."
+
         return redirect(url_for("settings.settings"))
 
     # Check new password confirmation
+
     if new_password != confirm_password:
+
+        session["settings_error"] = "New passwords do not match."
+
         return redirect(url_for("settings.settings"))
 
     # Update password
-    password_hash = generate_password_hash(new_password)
+
+    password_hash = generate_password_hash(
+        new_password
+    )
 
     update_admin_password(
         session["admin_id"],
         password_hash
     )
+
+    session["settings_success"] = "Password changed successfully."
 
     return redirect(url_for("settings.settings"))
