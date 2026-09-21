@@ -225,7 +225,12 @@ Dashboard
 
                 <small class="text-secondary">
 
-                    Last Scan : KTU scraper run
+                    Last Check :
+                    {% if last_scan_time %}
+                        {{ last_scan_time }}
+                    {% else %}
+                        Never
+                    {% endif %}
 
                 </small>
 

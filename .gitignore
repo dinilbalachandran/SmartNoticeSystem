@@ -25,3 +25,8 @@ logs/
 
 # macOS
 .DS_Store
+
+api_match.txt
+ktu_main.js
+chrome_debug_profile/
+chrome_profile/
