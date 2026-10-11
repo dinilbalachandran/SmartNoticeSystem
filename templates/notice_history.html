@@ -167,7 +167,11 @@ Notice History
                         </td>
 
                         <td>
-                            {{ notice.programme or "Unknown" }}
+                            {% if ',' in (notice.programme or "") %}
+                                <span class="badge bg-info">Multiple</span>
+                            {% else %}
+                                {{ notice.programme or "Unknown" }}
+                            {% endif %}
                         </td>
 
                         <td>

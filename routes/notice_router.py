@@ -21,38 +21,43 @@ def route_notice(programme, branch):
         return [dict(row) for row in faculty]
 
     # ------------------------------------------------------
-    # Specific branch → exact Programme + Branch match
+    # Dynamic IN clause for multi-programme routing
+    # ------------------------------------------------------
+    programme_list = [p.strip() for p in programme.split(',')]
+    placeholders = ', '.join(['?'] * len(programme_list))
+
+    # ------------------------------------------------------
+    # Specific branch → match any programme in the list + specific branch
     # ------------------------------------------------------
     if branch != "ALL":
 
-        faculty = conn.execute("""
+        query = f"""
             SELECT DISTINCT f.*
             FROM faculty f
             INNER JOIN faculty_teaching_assignments fta
                 ON f.id = fta.faculty_id
-            WHERE fta.programme = ?
+            WHERE fta.programme IN ({placeholders})
               AND fta.branch = ?
             ORDER BY f.name
-        """, (
-            programme,
-            branch
-        )).fetchall()
+        """
+        params = programme_list + [branch]
+        faculty = conn.execute(query, params).fetchall()
 
     # ------------------------------------------------------
-    # ALL branches → all faculty teaching that programme
+    # ALL branches → match any programme in the list
     # ------------------------------------------------------
     else:
 
-        faculty = conn.execute("""
+        query = f"""
             SELECT DISTINCT f.*
             FROM faculty f
             INNER JOIN faculty_teaching_assignments fta
                 ON f.id = fta.faculty_id
-            WHERE fta.programme = ?
+            WHERE fta.programme IN ({placeholders})
             ORDER BY f.name
-        """, (
-            programme,
-        )).fetchall()
+        """
+        params = programme_list
+        faculty = conn.execute(query, params).fetchall()
 
     conn.close()
 

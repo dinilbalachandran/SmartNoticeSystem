@@ -293,8 +293,11 @@ def classify_programme(subject="", text=""):
     if len(matched_programmes) == 1:
         return list(matched_programmes)[0]
     
-    # If multiple programmes are found, or none are found, fallback to Unknown
-    # (Unknown will route to all faculty)
+    # If multiple programmes are found, return them as a comma-separated string
+    if len(matched_programmes) > 1:
+        return ", ".join(sorted(matched_programmes))
+
+    # If none are found, fallback to Unknown
     return "Unknown"
 
 
