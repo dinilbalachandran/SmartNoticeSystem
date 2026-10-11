@@ -602,10 +602,10 @@ def scrape_ktu():
             page = context.new_page()
             page.goto(KTU_ANNOUNCEMENTS_PAGE)
 
-        page.on(
-            "console",
-            lambda msg: print(f"Browser console [{msg.type}]: {msg.text}")
-        )
+        # page.on(
+        #     "console",
+        #     lambda msg: print(f"Browser console [{msg.type}]: {msg.text}")
+        # )
 
 
         announcements_data = None
@@ -688,7 +688,7 @@ def scrape_ktu():
 
         page.goto(
             KTU_ANNOUNCEMENTS_PAGE,
-            wait_until="networkidle",
+            wait_until="domcontentloaded",
             timeout=60000
         )
 
@@ -697,7 +697,7 @@ def scrape_ktu():
         )
 
         page.wait_for_timeout(
-            180000
+            30000
         )
 
         # --------------------------------------------------
@@ -778,61 +778,31 @@ def scrape_ktu():
         # button for that notice.
         # --------------------------------------------------
 
+        # --------------------------------------------------
+        # MASTER TRIGGER APPROACH
+        # Since we intercept the network request and inject 
+        # the exact encryptId, we don't need to map buttons.
+        # We just use the first button on the page as a trigger!
+        # --------------------------------------------------
+        
         results = []
 
-        button_index = 0
+        master_trigger = buttons.first if button_count > 0 else None
 
-        for index, notice in enumerate(
-            notices,
-            start=1
-        ):
+        for index, notice in enumerate(notices, start=1):
 
-            notice_id = notice.get(
-                "id"
-            )
-
-            date = notice.get(
-                "announcementDate"
-            )
-
-            subject = notice.get(
-                "subject"
-            )
-
-            attachments = notice.get(
-                "attachmentList",
-                []
-            )
+            notice_id = notice.get("id")
+            date = notice.get("announcementDate")
+            subject = notice.get("subject")
+            attachments = notice.get("attachmentList", [])
 
             print()
-
-            print(
-                "----------------------------------------"
-            )
-
-            print(
-                f"NOTICE {index}/{len(notices)}"
-            )
-
-            print(
-                "ID:",
-                notice_id
-            )
-
-            print(
-                "Date:",
-                date
-            )
-
-            print(
-                "Subject:",
-                subject
-            )
-
-            print(
-                "Attachments:",
-                len(attachments)
-            )
+            print("----------------------------------------")
+            print(f"NOTICE {index}/{len(notices)}")
+            print("ID:", notice_id)
+            print("Date:", date)
+            print("Subject:", subject)
+            print("Attachments:", len(attachments))
 
             notice_result = {
                 "id": notice_id,
@@ -841,64 +811,49 @@ def scrape_ktu():
                 "attachments": []
             }
 
-            # --------------------------------------------------
-            # No attachments
-            # --------------------------------------------------
-
             if not attachments:
-
-                print(
-                    "No attachments for this notice."
-                )
-
-                results.append(
-                    notice_result
-                )
-
+                print("No attachments for this notice.")
+                results.append(notice_result)
                 continue
 
-            # --------------------------------------------------
-            # Get ONE Notification button for this NOTICE
-            # --------------------------------------------------
-
-            if button_index >= button_count:
-
-                print(
-                    "No Notification button "
-                    "available for this notice."
-                )
-
-                # Keep attachment information even when
-                # the webpage button could not be found.
-
+            if master_trigger is None:
+                print("No Notification buttons available on page to trigger downloads.")
                 for attachment in attachments:
+                    notice_result["attachments"].append({
+                        "name": attachment.get("attachmentName"),
+                        "encryptId": attachment.get("encryptId"),
+                        "path": None
+                    })
+                results.append(notice_result)
+                continue
 
-                    attachment_name = attachment.get(
-                        "attachmentName"
-                    )
+            # Download ALL attachments using the master trigger
+            for attachment_index, attachment in enumerate(attachments, start=1):
+                
+                attachment_name = attachment.get("attachmentName")
+                encrypt_id = attachment.get("encryptId")
 
-                    encrypt_id = attachment.get(
-                        "encryptId"
-                    )
+                print()
+                print(f"Attachment {attachment_index}/{len(attachments)}")
+                print("Name:", attachment_name)
+                print("encryptId:", encrypt_id)
 
-                    notice_result[
-                        "attachments"
-                    ].append(
-                        {
-                            "name":
-                                attachment_name,
-                            "encryptId":
-                                encrypt_id,
-                            "path":
-                                None
-                        }
-                    )
-
-                results.append(
-                    notice_result
+                path = download_attachment(
+                    page=page,
+                    button=master_trigger,
+                    encrypt_id=encrypt_id,
+                    notice_id=notice_id
                 )
 
-                continue
+                notice_result["attachments"].append({
+                    "name": attachment_name,
+                    "encryptId": encrypt_id,
+                    "path": str(path) if path else None
+                })
+
+            results.append(notice_result)
+
+            continue
 
             button = buttons.first
 
