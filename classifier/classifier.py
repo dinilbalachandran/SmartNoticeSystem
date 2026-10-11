@@ -281,20 +281,20 @@ def classify_programme(subject="", text=""):
         ("PhD", ["phd", "ph.d"]),
     ]
 
+    matched_programmes = set()
+
     for programme, keywords in programme_patterns:
-
         for keyword in keywords:
-
             if keyword in subject_content:
-                return programme
+                matched_programmes.add(programme)
+                break # Move to next programme pattern if found
 
-    # ------------------------------------------------------
-    # No programme found in subject
-    #
-    # Do NOT inspect PDF text here.
-    # This prevents false programme classification.
-    # ------------------------------------------------------
-
+    # If exactly one programme is found, return it
+    if len(matched_programmes) == 1:
+        return list(matched_programmes)[0]
+    
+    # If multiple programmes are found, or none are found, fallback to Unknown
+    # (Unknown will route to all faculty)
     return "Unknown"
 
 
