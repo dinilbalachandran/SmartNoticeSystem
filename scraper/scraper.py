@@ -254,23 +254,17 @@ This notice has been routed to you by the Smart Notice System.
 
                     A new university notice has been detected.
 
-                    Notice:
-                    {subject}
+                    Notice: {subject}
 
-                    Category:
-                    {result["notice_type"]}
+                    Category: {result["notice_type"]}
 
-                    Programme:
-                    {result["programme"]}
+                    Programme: {result["programme"]}
 
-                    Branch:
-                    {result["branch"]}
+                    Branch: {result["branch"]}
 
-                    Priority:
-                    {result["priority"]}
+                    Priority: {result["priority"]}
 
-                    Published Date:
-                    {notice.get("date")}
+                    Published Date: {notice.get("date")}
 
                     This notice has been routed to you by the Smart Notice System.
                     """
