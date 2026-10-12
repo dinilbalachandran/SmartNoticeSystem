@@ -1001,4 +1001,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const addForm = document.querySelector('form[action*="add"]');
+    if (!addForm) return;
+
+    addForm.addEventListener("submit", function (e) {
+        const emailInput = addForm.querySelector('input[name="email"]');
+        if (!emailInput) return;
+
+        const enteredEmail = emailInput.value.trim().toLowerCase();
+
+        // Collect all existing emails currently in the faculty table
+        const existingEmails = Array.from(
+            document.querySelectorAll("table tbody tr td")
+        ).map(td => td.textContent.trim().toLowerCase());
+
+        if (existingEmails.includes(enteredEmail)) {
+            e.preventDefault(); // Stop form from submitting
+            alert("Alert: A faculty member with this email address already exists!");
+            emailInput.focus();
+        }
+    });
+});
+</script>
+
 {% endblock %}

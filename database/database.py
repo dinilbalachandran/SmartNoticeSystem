@@ -322,10 +322,19 @@ def get_all_faculty(search="", department=""):
 def add_faculty(name, department, email, programme="Unknown", branch=None, assignments=None):
     conn = get_connection()
 
+    existing = conn.execute(
+        "SELECT id FROM faculty WHERE LOWER(email) = LOWER(?)",
+        (email.strip(),)
+    ).fetchone()
+
+    if existing:
+        conn.close()
+        return existing["id"]
+
     cursor = conn.execute("""
         INSERT INTO faculty (name, programme, department, email)
         VALUES (?, ?, ?, ?)
-    """, (name, programme, department, email))
+    """, (name, programme, department, email.strip()))
 
     faculty_id = cursor.lastrowid
 

@@ -643,24 +643,24 @@ if __name__ == "__main__":
         )
     ]
 
-    print()
-    print("========== CLASSIFICATION TEST ==========")
+    # print()
+    # print("========== CLASSIFICATION TEST ==========")
 
-    for notice_id, subject, text in tests:
+    # for notice_id, subject, text in tests:
 
-        result = classify_notice(
-            subject=subject,
-            text=text,
-            notice_id=notice_id
-        )
+    #     result = classify_notice(
+    #         subject=subject,
+    #         text=text,
+    #         notice_id=notice_id
+    #     )
 
-        print()
-        print(f"Notice ID: {notice_id}")
-        print(f"Subject: {subject}")
-        print(f"Type:      {result['notice_type']}")
-        print(f"Programme: {result['programme']}")
-        print(f"Branch:    {result['branch']}")
-        print(f"Priority:  {result['priority']}")
+    #     print()
+    #     print(f"Notice ID: {notice_id}")
+    #     print(f"Subject: {subject}")
+    #     print(f"Type:      {result['notice_type']}")
+    #     print(f"Programme: {result['programme']}")
+    #     print(f"Branch:    {result['branch']}")
+    #     print(f"Priority:  {result['priority']}")
 
-    print()
-    print("==========================================")
+    # print()
+    # print("==========================================")

@@ -84,7 +84,7 @@ def faculty_add():
         assignments=assignments
     )
 
-    return redirect(url_for("faculty.faculty_page"))
+    return redirect("/faculty")
 
 
 # =========================
