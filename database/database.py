@@ -1055,7 +1055,7 @@ def update_source_last_checked(source_id):
 
     conn.execute("""
         UPDATE notice_sources
-        SET last_checked = CURRENT_TIMESTAMP
+        SET last_checked = datetime('now', 'localtime')
         WHERE id = ?
     """, (source_id,))
 

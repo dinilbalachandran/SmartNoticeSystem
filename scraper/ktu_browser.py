@@ -56,10 +56,6 @@ def decode_attachment(body):
         errors="replace"
     ).strip()
 
-    # ------------------------------------------------------
-    # JSON
-    # ------------------------------------------------------
-
     try:
 
         data = json.loads(text)
@@ -90,10 +86,6 @@ def decode_attachment(body):
 
         pass
 
-    # ------------------------------------------------------
-    # Clean response
-    # ------------------------------------------------------
-
     text = text.strip()
 
     if (
@@ -104,27 +96,13 @@ def decode_attachment(body):
 
         text = text[1:-1]
 
-    # Remove data URI prefix if present
-
     if text.startswith("data:") and "," in text:
 
         text = text.split(",", 1)[1]
 
-    # ------------------------------------------------------
-    # KTU response format:
-    #
-    # BASE64&&filename.pdf
-    #
-    # Keep ONLY the part before &&
-    # ------------------------------------------------------
-
     if "&&" in text:
 
         text = text.split("&&", 1)[0]
-
-    # ------------------------------------------------------
-    # Remove whitespace
-    # ------------------------------------------------------
 
     text = re.sub(
         r"\s+",
@@ -132,65 +110,19 @@ def decode_attachment(body):
         text
     )
 
-    # ------------------------------------------------------
-    # Remove anything that is not Base64
-    # ------------------------------------------------------
-
     text = re.sub(
         r"[^A-Za-z0-9+/=]",
         "",
         text
     )
 
-    # ------------------------------------------------------
-    # Remove excessive trailing '='
-    # ------------------------------------------------------
-
     text = text.rstrip("=")
-
-    # ------------------------------------------------------
-    # Add correct padding
-    # ------------------------------------------------------
 
     remainder = len(text) % 4
 
     if remainder:
 
         text += "=" * (4 - remainder)
-
-    print(
-        f"Base64 text length: {len(text):,}"
-    )
-
-    print(
-        "First 100 Base64 chars:"
-    )
-
-    print(
-        repr(text[:100])
-    )
-
-    print(
-        "Last 100 Base64 chars:"
-    )
-
-    print(
-        repr(text[-100:])
-    )
-
-    print(
-        "Base64 length:",
-        len(text)
-    )
-
-    print(
-        "Length % 4:",
-        len(text) % 4
-    )
-
-    # ------------------------------------------------------
-    # Decode
-    # ------------------------------------------------------
 
     try:
 
@@ -204,11 +136,6 @@ def decode_attachment(body):
         raise ValueError(
             f"Base64 decoding failed: {e}"
         )
-
-    print(
-        f"Decoded PDF size: "
-        f"{len(pdf_bytes):,} bytes"
-    )
 
     return pdf_bytes
 
@@ -318,16 +245,9 @@ def download_attachment(
     notice_id
 ):
 
-    print()
-    print("Clicking KTU Notification button...")
-
     modify_request = None
 
     try:
-
-        # --------------------------------------------------
-        # Intercept the KTU attachment request BEFORE click
-        # --------------------------------------------------
 
         def modify_request(route):
 
@@ -338,18 +258,7 @@ def download_attachment(
                     request.post_data or "{}"
                 )
 
-                print()
-                print(
-                    "Original request encryptId:",
-                    body.get("encryptId")
-                )
-
                 body["encryptId"] = encrypt_id
-
-                print(
-                    "Using attachment encryptId:",
-                    encrypt_id
-                )
 
                 route.continue_(
                     post_data=json.dumps(body)
@@ -369,10 +278,6 @@ def download_attachment(
             modify_request
         )
 
-        # --------------------------------------------------
-        # Click and capture response
-        # --------------------------------------------------
-
         with page.expect_response(
             lambda response:
                 ATTACHMENT_URL in response.url
@@ -384,7 +289,6 @@ def download_attachment(
 
         response = response_info.value
 
-        # Remove route immediately after response
         page.unroute(
             ATTACHMENT_URL,
             modify_request
@@ -412,21 +316,6 @@ def download_attachment(
 
         return None
 
-    print()
-    print(
-        "========== ATTACHMENT RESPONSE =========="
-    )
-
-    print(
-        "URL:",
-        response.url
-    )
-
-    print(
-        "Status:",
-        response.status
-    )
-
     if response.status != 200:
 
         body = response.body()
@@ -446,30 +335,12 @@ def download_attachment(
 
     body = response.body()
 
-    print(
-        f"Response size: "
-        f"{len(body):,} bytes"
-    )
-
-    # ------------------------------------------------------
-    # Server filename
-    # ------------------------------------------------------
-
     filename = clean_filename(
         response.headers.get(
             "content-disposition",
             ""
         ).split("filename=", 1)[-1].strip('"')
     )
-
-    print(
-        "Filename from server:",
-        filename
-    )
-
-    # ------------------------------------------------------
-    # Decode
-    # ------------------------------------------------------
 
     try:
 
@@ -489,27 +360,12 @@ def download_attachment(
 
         return None
 
-    # ------------------------------------------------------
-    # Verify PDF
-    # ------------------------------------------------------
-
     if not pdf_bytes.startswith(
         b"%PDF"
     ):
 
         print(
-            "ERROR:"
-        )
-
-        print(
-            "Decoded data is not a PDF."
-        )
-
-        print(
-            "First bytes:",
-            repr(
-                pdf_bytes[:50]
-            )
+            "ERROR: Decoded data is not a PDF."
         )
 
         return None
@@ -517,10 +373,6 @@ def download_attachment(
     print(
         "PDF signature verified!"
     )
-
-    # ------------------------------------------------------
-    # Save
-    # ------------------------------------------------------
 
     return save_pdf(
         pdf_bytes=pdf_bytes,
@@ -602,17 +454,7 @@ def scrape_ktu():
             page = context.new_page()
             page.goto(KTU_ANNOUNCEMENTS_PAGE)
 
-        # page.on(
-        #     "console",
-        #     lambda msg: print(f"Browser console [{msg.type}]: {msg.text}")
-        # )
-
-
         announcements_data = None
-
-        # --------------------------------------------------
-        # Capture announcements API
-        # --------------------------------------------------
 
         def handle_response(response):
 
@@ -633,28 +475,23 @@ def scrape_ktu():
                         announcements_data = data
 
                         print()
-
                         print(
                             "========== ANNOUNCEMENTS API =========="
                         )
-
                         print(
                             "URL:",
                             response.url
                         )
-
                         print(
                             "Status:",
                             response.status
                         )
-
                         print(
                             "Total elements:",
                             data.get(
                                 "totalElements"
                             )
                         )
-
                         print(
                             "Number of notices:",
                             len(
@@ -678,10 +515,6 @@ def scrape_ktu():
             handle_response
         )
 
-        # --------------------------------------------------
-        # Open KTU
-        # --------------------------------------------------
-
         print(
             "Opening KTU announcements page..."
         )
@@ -700,19 +533,10 @@ def scrape_ktu():
             30000
         )
 
-        # --------------------------------------------------
-        # Check announcements
-        # --------------------------------------------------
-
         if announcements_data is None:
 
             print(
-                "ERROR:"
-            )
-
-            print(
-                "Announcements API response "
-                "was not captured."
+                "ERROR: Announcements API response was not captured."
             )
 
             context.close()
@@ -729,26 +553,6 @@ def scrape_ktu():
             0
         )
 
-        print()
-
-        print(
-            "========== NOTICE PROCESSING =========="
-        )
-
-        print(
-            "Total notices:",
-            total_elements
-        )
-
-        print(
-            "Notices received:",
-            len(notices)
-        )
-
-        # --------------------------------------------------
-        # Find notification buttons
-        # --------------------------------------------------
-
         buttons = page.get_by_role(
             "button",
             name=re.compile(
@@ -759,32 +563,6 @@ def scrape_ktu():
 
         button_count = buttons.count()
 
-        print()
-
-        print(
-            "Notification buttons found:",
-            button_count
-        )
-
-        # --------------------------------------------------
-        # IMPORTANT FIX
-        #
-        # One Notification button belongs to ONE NOTICE.
-        #
-        # Do NOT consume a button for every attachment.
-        #
-        # A notice may have multiple API attachments but
-        # the KTU webpage can show only one Notification
-        # button for that notice.
-        # --------------------------------------------------
-
-        # --------------------------------------------------
-        # MASTER TRIGGER APPROACH
-        # Since we intercept the network request and inject 
-        # the exact encryptId, we don't need to map buttons.
-        # We just use the first button on the page as a trigger!
-        # --------------------------------------------------
-        
         results = []
 
         master_trigger = buttons.first if button_count > 0 else None
@@ -827,16 +605,10 @@ def scrape_ktu():
                 results.append(notice_result)
                 continue
 
-            # Download ALL attachments using the master trigger
-            for attachment_index, attachment in enumerate(attachments, start=1):
+            for attachment in attachments:
                 
                 attachment_name = attachment.get("attachmentName")
                 encrypt_id = attachment.get("encryptId")
-
-                print()
-                print(f"Attachment {attachment_index}/{len(attachments)}")
-                print("Name:", attachment_name)
-                print("encryptId:", encrypt_id)
 
                 path = download_attachment(
                     page=page,
@@ -852,149 +624,6 @@ def scrape_ktu():
                 })
 
             results.append(notice_result)
-
-            continue
-
-            button = buttons.first
-
-            # Consume exactly ONE button for this notice.
-
-            button_index += 1
-
-            # --------------------------------------------------
-            # Download ALL attachments for this notice.
-            #
-            # KTU provides one button for each attachment.
-            # --------------------------------------------------
-
-            for attachment_index, attachment in enumerate(
-                attachments,
-                start=1
-            ):
-
-                if button_index >= button_count:
-
-                    print(
-                        "No Notification/University Order button "
-                        "available for this attachment."
-                    )
-
-                    notice_result[
-                        "attachments"
-                    ].append(
-                        {
-                            "name":
-                                attachment.get(
-                                    "attachmentName"
-                                ),
-                            "encryptId":
-                                attachment.get(
-                                    "encryptId"
-                                ),
-                            "path":
-                                None
-                        }
-                    )
-
-                    continue
-
-                button = page.get_by_role(
-                    "button",
-                    name=re.compile(
-                        "Notification|University Order",
-                        re.IGNORECASE
-                    )
-                ).nth(button_index)
-
-                # Consume exactly ONE button for ONE attachment.
-                button_index += 1
-
-                attachment_name = attachment.get(
-                    "attachmentName"
-                )
-
-                encrypt_id = attachment.get(
-                    "encryptId"
-                )
-
-                print()
-
-                print(
-                    f"Attachment {attachment_index}/"
-                    f"{len(attachments)}"
-                )
-
-                print(
-                    "Name:",
-                    attachment_name
-                )
-
-                print(
-                    "encryptId:",
-                    encrypt_id
-                )
-
-                # --------------------------------------------------
-                # Download
-                # --------------------------------------------------
-
-                path = download_attachment(
-                    page=page,
-                    button=button,
-                    encrypt_id=encrypt_id,
-                    notice_id=notice_id
-                )
-
-                notice_result[
-                    "attachments"
-                ].append(
-                    {
-                        "name":
-                            attachment_name,
-                        "encryptId":
-                            encrypt_id,
-                        "path":
-                            str(path)
-                            if path
-                            else None
-                    }
-                )
-
-            if len(attachments) > 1:
-
-                print()
-
-                print(
-                    f"Additional API attachments: "
-                    f"{len(attachments) - 1}"
-                )
-
-                for extra_attachment in attachments[1:]:
-
-                    notice_result[
-                        "attachments"
-                    ].append(
-                        {
-                            "name":
-                                extra_attachment.get(
-                                    "attachmentName"
-                                ),
-                            "encryptId":
-                                extra_attachment.get(
-                                    "encryptId"
-                                ),
-                            "path":
-                                None
-                        }
-                    )
-
-            results.append(
-                notice_result
-            )
-
-        # --------------------------------------------------
-        # Summary
-        # --------------------------------------------------
 
         downloaded = sum(
             1
@@ -1016,21 +645,17 @@ def scrape_ktu():
         )
 
         print()
-
         print(
             "========== KTU SCRAPER COMPLETE =========="
         )
-
         print(
             f"Notices processed: "
             f"{len(notices)}"
         )
-
         print(
             f"Attachments downloaded: "
             f"{downloaded}/{expected}"
         )
-
         print(
             "==========================================="
         )
@@ -1048,10 +673,6 @@ def scrape_ktu():
                 results
         }
 
-
-# ==========================================================
-# Main
-# ==========================================================
 
 if __name__ == "__main__":
 

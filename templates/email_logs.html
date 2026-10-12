@@ -182,8 +182,67 @@ Email Logs
 
         </table>
 
+        {% if logs %}
+        <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+            <span id="emailPageInfo" class="text-secondary small"></span>
+            <div>
+                <button type="button" id="prevEmailPageBtn" class="btn btn-secondary btn-sm me-1">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" id="nextEmailPageBtn" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.querySelector(".email-log-table tbody");
+    const prevBtn = document.getElementById("prevEmailPageBtn");
+    const nextBtn = document.getElementById("nextEmailPageBtn");
+    const pageInfo = document.getElementById("emailPageInfo");
+
+    if (!tbody || !prevBtn || !nextBtn) return;
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    const rowsPerPage = 5;
+    let currentPage = 1;
+    const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
+
+    function renderPage() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? "" : "none";
+        });
+
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    prevBtn.addEventListener("click", function () {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+        }
+    });
+
+    nextBtn.addEventListener("click", function () {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderPage();
+        }
+    });
+
+    renderPage();
+});
+</script>
 
 {% endblock %}
